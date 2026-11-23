@@ -2,6 +2,7 @@ const r = String.raw;
 
 export default {
   id: 'cantor',
+  field: 'Sets & logic',
   title: 'The real numbers are uncountable',
   attribution: 'Georg Cantor, diagonal argument, 1891',
   statement: r`There is no list $r_1, r_2, r_3, \dots$ containing every real number.`,

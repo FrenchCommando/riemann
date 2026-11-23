@@ -2,6 +2,7 @@ const r = String.raw;
 
 export default {
   id: 'euclid',
+  field: 'Number theory',
   title: 'There are infinitely many primes',
   attribution: 'Euclid, Elements IX.20, c. 300 BC',
   statement: r`For every finite list of primes, there is a prime not on it.`,

@@ -9,6 +9,7 @@ function runDiagnostic(state, answerFor) {
   const s = E.newDiagnostic();
   let id;
   while ((id = E.nextDiagnostic(concepts, s))) E.recordDiagnostic(state, concepts, s, id, answerFor(id));
+  E.finishDiagnostic(state, concepts, s);
   return s;
 }
 
@@ -20,11 +21,13 @@ test('observe moves toward outcome and stays in (0,1)', () => {
   assert.ok(E.p(s, 'primes') < 0.95, 'still responsive after many observations');
 });
 
-test('expert diagnostic: everything solid, fewer questions than concepts', () => {
+test('expert diagnostic: capped; assessed concepts solid, the rest standard', () => {
   const s = fresh();
   const d = runDiagnostic(s, () => 'correct');
-  assert.ok(d.asked.length < concepts.length, `asked ${d.asked.length}`);
-  concepts.forEach((c) => assert.ok(E.p(s, c.id) >= E.HI, c.id));
+  assert.ok(d.asked.length <= E.MAX_DIAG, `asked ${d.asked.length}`);
+  [...d.asked, ...d.inferred].forEach((c) => assert.ok(E.p(s, c) >= E.HI, c));
+  d.defaulted.forEach((c) => assert.ok(E.p(s, c) >= E.LO && E.p(s, c) < E.HI, c));
+  assert.ok(s.diagnosed);
 });
 
 test('novice diagnostic: misses skip dependents', () => {
@@ -43,11 +46,11 @@ test('diagnostic length stays short for typical profiles', () => {
   known.forEach((c) => assert.ok(E.p(s, c) >= E.HI, c));
 });
 
-test('every concept is assessed exactly once (asked or inferred)', () => {
+test('every concept is assessed exactly once (asked, inferred or defaulted)', () => {
   const s = fresh();
   let flip = false;
   const d = runDiagnostic(s, () => ((flip = !flip) ? 'correct' : 'wrong'));
-  const all = [...d.asked, ...d.inferred];
+  const all = [...d.asked, ...d.inferred, ...d.defaulted];
   assert.equal(new Set(all).size, all.length);
   assert.equal(all.length, concepts.length);
 });
@@ -66,10 +69,10 @@ test('step mode follows weakest concept; override wins', () => {
   assert.equal(E.stepMode(s, step), 'challenge');
 });
 
-test('recommendation: novice gets sqrt2 or euclid first; required theorems lower readiness', () => {
+test('recommendation: novice starts with an entry-level proof; required theorems lower readiness', () => {
   const s = fresh();
   const first = E.recommend(s, theorems);
-  assert.ok(['sqrt2', 'euclid'].includes(first.id), first.id);
+  assert.ok(['pythagoras', 'sqrt2', 'euclid'].includes(first.id), first.id);
   const euler = theoremById.euler;
   const before = E.readiness(s, euler);
   E.completeTheorem(s, theoremById.fta);
@@ -84,6 +87,20 @@ test('gaps lists weak prerequisites, prerequisites first', () => {
   assert.ok(g.indexOf('divisibility') < g.indexOf('parity'));
   concepts.forEach((c) => (s.mastery[c.id] = { p: 0.9, n: 1 }));
   assert.deepEqual(E.gaps(s, concepts, theoremById.sqrt2), []);
+});
+
+test('never recommends a proof before the proofs it builds on (when avoidable)', () => {
+  const s = fresh();
+  concepts.forEach((c) => (s.mastery[c.id] = { p: 0.95, n: 1 }));
+  const done = new Set();
+  while (true) {
+    const t = E.recommend(s, theorems);
+    if (!t) break;
+    (t.requiresTheorems ?? []).forEach((x) => assert.ok(done.has(x), `${t.id} before ${x}`));
+    E.completeTheorem(s, t);
+    done.add(t.id);
+  }
+  assert.equal(done.size, theorems.length);
 });
 
 test('completing all theorems → no recommendation', () => {

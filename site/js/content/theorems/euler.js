@@ -2,6 +2,7 @@ const r = String.raw;
 
 export default {
   id: 'euler',
+  field: 'Number theory',
   title: r`$\sum 1/p$ diverges — Euler's product`,
   attribution: 'Leonhard Euler, 1737',
   statement: r`$$\sum_{p \text{ prime}} \frac1p = \frac12 + \frac13 + \frac15 + \frac17 + \frac1{11} + \cdots = \infty.$$`,

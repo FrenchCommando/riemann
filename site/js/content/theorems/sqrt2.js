@@ -2,6 +2,7 @@ const r = String.raw;
 
 export default {
   id: 'sqrt2',
+  field: 'Number theory',
   title: r`$\sqrt2$ is irrational`,
   attribution: 'Pythagorean school, c. 5th century BC',
   statement: r`There are no integers $p, q$ with $q \ne 0$ such that $\left(\frac pq\right)^2 = 2$.`,

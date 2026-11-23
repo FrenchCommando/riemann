@@ -1,6 +1,6 @@
 import * as E from './engine.js';
 import { inline as fi, block as fb } from './format.js';
-import { concepts, conceptById, theorems, theoremById } from './content/index.js';
+import { concepts, conceptById, theorems, theoremById, fields } from './content/index.js';
 
 // ---------- state ----------
 
@@ -72,7 +72,7 @@ function viewHome() {
     recHtml = `<section class="card rec"><h2>All proofs complete.</h2><p>Switch to Challenge mode in Settings and run them again without peeking.</p></section>`;
   }
 
-  const list = theorems.map((t) => {
+  const row = (t) => {
     const pr = state.progress[t.id];
     const status = pr?.done ? '<span class="tag done">done</span>' : pr?.step ? `<span class="tag">step ${pr.step + 1}/${t.steps.length}</span>` : '';
     const builds = (t.requiresTheorems ?? []).filter((x) => !E.isDone(state, x));
@@ -81,10 +81,14 @@ function viewHome() {
       <span class="t-meta">${t.attribution}${builds.length ? ` · builds on ${builds.map((x) => fi(theoremById[x].title)).join(', ')}` : ''}</span>
       <span class="t-ready">readiness ${bar(E.readiness(state, t), 'readiness')}</span>
     </a></li>`;
+  };
+  const groups = fields.map((f) => {
+    const ts = theorems.filter((t) => t.field === f);
+    const done = ts.filter((t) => E.isDone(state, t.id)).length;
+    return `<section><h3>${f} <span class="small muted">${done}/${ts.length}</span></h3><ul class="theorems">${ts.map(row).join('')}</ul></section>`;
   }).join('');
 
-  return `${calib}${recHtml}
-    <section><h3>Proofs</h3><ul class="theorems">${list}</ul></section>
+  return `${calib}${recHtml}${groups}
     <section><h3>Your concept map <a class="small" href="#concepts">all concepts →</a></h3>
       <div class="chips">${E.topoOrder(concepts).map(chip).join(' ')}</div>
       <p class="small muted">Green = solid, amber = shaky, grey = new. Tap one to read its primer or practise.</p>
@@ -95,17 +99,18 @@ function viewDiagnostic() {
   ui.diag ??= E.newDiagnostic();
   const id = ui.current ?? E.nextDiagnostic(concepts, ui.diag);
   if (!id) {
-    state.diagnosed = true; save();
+    if (!ui.diag.defaulted) E.finishDiagnostic(state, concepts, ui.diag);
+    save();
     const solid = concepts.filter((c) => E.p(state, c.id) >= E.HI).length;
     return `<section class="card"><h2>Calibrated</h2>
       <p>${solid} of ${concepts.length} concepts look solid. Proof steps that rely on the others will be guided, with refreshers inline.</p>
-      <p>Answered ${ui.diag.asked.length} questions; inferred ${ui.diag.inferred.length} from the prerequisite graph.</p>
+      <p>Answered ${ui.diag.asked.length} questions and inferred ${ui.diag.inferred.length} from the prerequisite graph${ui.diag.defaulted.length ? `; ${ui.diag.defaulted.length} more will calibrate as you go` : ''}.</p>
       <a class="btn primary" href="#home">See your path</a></section>`;
   }
   ui.current = id;
   const c = conceptById[id];
   const answered = ui.answers?.diag !== undefined;
-  const remaining = concepts.length - ui.diag.asked.length - ui.diag.inferred.length;
+  const remaining = Math.min(concepts.length - ui.diag.asked.length - ui.diag.inferred.length, E.MAX_DIAG - ui.diag.asked.length);
   return `<section class="card">
     <div class="eyebrow">Diagnostic · question ${ui.diag.asked.length + 1} · at most ${remaining - 1} more</div>
     <h2>${c.name}</h2>

@@ -2,6 +2,7 @@ const r = String.raw;
 
 export default {
   id: 'fta',
+  field: 'Number theory',
   title: 'Fundamental Theorem of Arithmetic',
   attribution: 'Euclid (key lemma); first complete proof Gauss, 1801',
   statement: r`Every integer $n \ge 2$ is a product of primes, and this factorisation is unique up to the order of the factors.`,

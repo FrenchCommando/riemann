@@ -266,6 +266,114 @@ $$-\log(1 - x) = x + \frac{x^2}{2} + \frac{x^3}{3} + \cdots$$
       explain: r`The sum *is* $\log$ of the product, and $\log$ of something going to $\infty$ goes to $\infty$.`,
     },
   },
+  {
+    id: 'area',
+    name: 'Area & angles',
+    prereqs: [],
+    summary: 'Areas of squares and triangles; angle sums in a triangle and on a line.',
+    primer: r`A square of side $s$ has area $s^2$; a right triangle with legs $a, b$ has area $\frac12 ab$ (half of an $a \times b$ rectangle). Area is **additive**: cut a shape into pieces and the areas add up.
+
+**Angles:** the angles of a triangle sum to $180^\circ$, and angles that together make a straight line also sum to $180^\circ$. So in a right triangle the two acute angles $\alpha, \beta$ satisfy $\alpha + \beta = 90^\circ$.
+
+Algebra used with areas: $(a+b)^2 = a^2 + 2ab + b^2$.`,
+    q: {
+      prompt: r`A right triangle has an acute angle of $35^\circ$. What is the other acute angle?`,
+      options: [r`$35^\circ$`, r`$55^\circ$`, r`$145^\circ$`],
+      answer: 1,
+      explain: r`$180^\circ - 90^\circ - 35^\circ = 55^\circ$. The two acute angles of a right triangle always add to $90^\circ$.`,
+    },
+  },
+  {
+    id: 'powerset',
+    name: 'Subsets & the power set',
+    prereqs: ['functions'],
+    summary: 'P(S), the set of all subsets of S.',
+    primer: r`The **power set** $\mathcal P(S)$ is the set of all subsets of $S$, including $\varnothing$ and $S$ itself. For $S = \{1, 2\}$: $\mathcal P(S) = \{\varnothing, \{1\}, \{2\}, \{1,2\}\}$.
+
+A subset is the same as a yes/no choice for each element, so a set with $n$ elements has $2^n$ subsets. For infinite $S$, a subset of $\mathbb N$ is an infinite yes/no sequence.
+
+A function $f : S \to \mathcal P(S)$ assigns to each element $x$ a **set** $f(x)$, so it makes sense to ask whether $x \in f(x)$.`,
+    q: {
+      prompt: r`How many elements does $\mathcal P(\{a, b, c\})$ have?`,
+      options: [r`$3$`, r`$6$`, r`$8$`, r`$9$`],
+      answer: 2,
+      explain: r`Each of the 3 elements is in or out: $2^3 = 8$ subsets, from $\varnothing$ to $\{a,b,c\}$.`,
+    },
+  },
+  {
+    id: 'programs',
+    name: 'Programs as data',
+    prereqs: ['countability'],
+    summary: 'Programs are finite strings: they can be listed, and fed to other programs as input.',
+    primer: r`A program is a finite string of characters. So:
+
+- **Programs are countable:** list them by length, then alphabetically.
+- **Programs can be inputs:** any program can receive the text of a program (even its own) as input — compilers and interpreters do this daily.
+- **Programs can call programs:** if $H$ is a program, we can write a new program that runs $H$ as a subroutine and then does something with its answer.
+
+A program **halts** on an input if it eventually stops; otherwise it runs forever (e.g. a loop with no exit condition).`,
+    q: {
+      prompt: r`Which statement is true?`,
+      options: [
+        r`There are uncountably many programs`,
+        r`A program can never take its own source code as input`,
+        r`Programs can be listed $P_1, P_2, P_3, \dots$ so that every program appears`,
+      ],
+      answer: 2,
+      explain: r`Programs are finite strings over a finite alphabet: list them by length, then alphabetically. Feeding a program its own text is perfectly legal.`,
+    },
+  },
+  {
+    id: 'partitions',
+    name: 'Partitions',
+    prereqs: ['functions'],
+    summary: 'Splitting a set into disjoint pieces, and counting by pieces.',
+    primer: r`A **partition** of a set $G$ is a collection of non-empty pieces such that every element lies in **exactly one** piece.
+
+To prove some sets form a partition, show two things: (1) every element is in at least one piece; (2) two pieces that share an element are equal.
+
+**Counting:** if $G$ is finite and split into $m$ pieces of equal size $k$, then $|G| = mk$ — so $k$ divides $|G|$.`,
+    q: {
+      prompt: r`A set of 12 elements is partitioned into pieces of equal size. Which piece size is impossible?`,
+      options: [r`$3$`, r`$4$`, r`$5$`],
+      answer: 2,
+      explain: r`Equal pieces of size $k$ force $k \mid 12$, and $5 \nmid 12$.`,
+    },
+  },
+  {
+    id: 'groups',
+    name: 'Groups',
+    prereqs: ['modular', 'gcd'],
+    summary: 'Group axioms, subgroups, the order of an element; the units mod n.',
+    primer: r`A **group** is a set $G$ with an operation (written $gh$) that is associative, has an identity $e$, and where every $g$ has an inverse $g^{-1}$. Consequence: **cancellation** — $gh = gk$ implies $h = k$ (multiply on the left by $g^{-1}$).
+
+A **subgroup** $H \subseteq G$ is a subset that is itself a group under the same operation. For $a \in G$ (finite), the powers $e, a, a^2, \dots$ eventually repeat; the least $d \ge 1$ with $a^d = e$ is the **order** of $a$, and $\{e, a, \dots, a^{d-1}\}$ is a subgroup with $d$ elements.
+
+**Key example:** $(\mathbb Z/n)^\times$, the residues mod $n$ coprime to $n$, under multiplication. It has $\varphi(n)$ elements; for a prime $p$ that's $p - 1$. Inverses exist by Bézout: $\gcd(a, n) = 1$ gives $ax + ny = 1$, so $ax \equiv 1$.`,
+    q: {
+      prompt: r`In $(\mathbb Z/7)^\times$, what is the order of $2$?`,
+      options: [r`$2$`, r`$3$`, r`$6$`],
+      answer: 1,
+      explain: r`$2^1 = 2$, $2^2 = 4$, $2^3 = 8 \equiv 1 \pmod 7$. So the order is 3.`,
+    },
+  },
+  {
+    id: 'legendre',
+    name: 'Floor & primes in factorials',
+    prereqs: ['primes'],
+    summary: '⌊x⌋, and how many times a prime divides m! (Legendre).',
+    primer: r`$\lfloor x \rfloor$ is the largest integer $\le x$: $\lfloor 3.7 \rfloor = 3$. Among $1, \dots, m$, exactly $\lfloor m/d \rfloor$ are multiples of $d$.
+
+**Legendre's formula:** the exponent of a prime $p$ in $m!$ is
+$$v_p(m!) = \Big\lfloor \frac mp \Big\rfloor + \Big\lfloor \frac m{p^2} \Big\rfloor + \Big\lfloor \frac m{p^3} \Big\rfloor + \cdots$$
+Each multiple of $p$ in $1..m$ contributes one factor, each multiple of $p^2$ one more, and so on. The sum is finite: terms vanish once $p^j \gt m$.`,
+    q: {
+      prompt: r`How many factors of 2 are in $10!$, i.e. what is $v_2(10!)$?`,
+      options: [r`$5$`, r`$7$`, r`$8$`],
+      answer: 2,
+      explain: r`$\lfloor 10/2 \rfloor + \lfloor 10/4 \rfloor + \lfloor 10/8 \rfloor = 5 + 2 + 1 = 8$. Check: $10! = 3628800 = 2^8 \cdot 14175$.`,
+    },
+  },
 ];
 
 export const conceptById = Object.fromEntries(concepts.map((c) => [c.id, c]));

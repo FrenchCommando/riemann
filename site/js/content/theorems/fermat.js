@@ -2,6 +2,7 @@ const r = String.raw;
 
 export default {
   id: 'fermat',
+  field: 'Number theory',
   title: "Fermat's Little Theorem",
   attribution: 'Stated by Fermat, 1640; proved by Euler, 1736',
   statement: r`If $p$ is prime, then $a^p \equiv a \pmod p$ for every integer $a$. If moreover $p \nmid a$, then $a^{p-1} \equiv 1 \pmod p$.`,

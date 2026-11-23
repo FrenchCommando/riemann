@@ -106,10 +106,12 @@ export function newDiagnostic() {
 // concept's unassessed ancestors, a miss its unassessed descendants. The hit
 // rate so far weights the two, so experts get asked deep concepts first and
 // novices shallow ones. Ties go to prerequisite order.
+export const MAX_DIAG = 12;
+
 export function nextDiagnostic(concepts, session) {
   const done = new Set([...session.asked, ...session.inferred]);
   const open = topoOrder(concepts).filter((id) => !done.has(id));
-  if (!open.length) return null;
+  if (!open.length || session.asked.length >= MAX_DIAG) return null;
   const h = ((session.hits ?? 0) + 1) / (session.asked.length + 2);
   let best = null, bestScore = -1;
   for (const id of open) {
@@ -138,6 +140,17 @@ export function recordDiagnostic(state, concepts, session, id, answer) {
       if (!done.has(d)) { set(state, d, 0.1); session.inferred.push(d); }
     }
   }
+}
+
+// After the question cap, concepts never asked or inferred get an estimate from
+// the session's hit rate: ~0.65 for a strong learner (standard mode), ~0.25 for
+// a beginner (guided). Live answers recalibrate them quickly.
+export function finishDiagnostic(state, concepts, session) {
+  const done = new Set([...session.asked, ...session.inferred]);
+  const h = (session.hits ?? 0) / Math.max(1, session.asked.length);
+  session.defaulted = concepts.map((c) => c.id).filter((id) => !done.has(id));
+  for (const id of session.defaulted) set(state, id, 0.2 + 0.5 * h);
+  state.diagnosed = true;
 }
 
 // ---------- step rendering mode ----------
@@ -182,9 +195,11 @@ export function gaps(state, concepts, theorem) {
 export function recommend(state, theorems) {
   const open = theorems.filter((t) => !isDone(state, t.id));
   if (!open.length) return null;
+  // Proofs whose prerequisite proofs are done come first; then readiness.
+  const unlocked = (t) => ((t.requiresTheorems ?? []).every((x) => isDone(state, x)) ? 1 : 0);
   return open
-    .map((t, i) => ({ t, r: readiness(state, t), i }))
-    .sort((a, b) => b.r - a.r || a.i - b.i)[0].t;
+    .map((t, i) => ({ t, u: unlocked(t), r: readiness(state, t), i }))
+    .sort((a, b) => b.u - a.u || b.r - a.r || a.i - b.i)[0].t;
 }
 
 export function completeTheorem(state, theorem) {

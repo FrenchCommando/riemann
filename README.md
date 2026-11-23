@@ -2,12 +2,19 @@
 
 Adaptive, step-by-step walkthroughs of famous proofs. Static site: vanilla JS modules, vendored KaTeX, no build step, no backend, no tracking. Progress lives in the browser's localStorage (export/import in Settings).
 
-**Proofs:** √2 irrational · infinitely many primes · Fundamental Theorem of Arithmetic · Cantor's diagonal · Fermat's Little Theorem · Euler's ∑1/p diverges (→ ζ(s), the path to Riemann).
+**13 proofs across 5 fields**
+- *Geometry:* Pythagorean theorem
+- *Number theory:* √2 irrational · infinitely many primes · Fundamental Theorem of Arithmetic · Fermat's Little Theorem · infinitely many primes ≡ 3 (mod 4) · Euler's ∑1/p diverges · Chebyshev's bound π(x) ≳ x/log x
+- *Sets & logic:* Cantor's diagonal (ℝ uncountable) · Cantor's theorem (|P(S)| > |S|) · halting problem
+- *Analysis:* e is irrational
+- *Algebra:* Lagrange's theorem (→ Euler's theorem, a second proof of Fermat)
+
+The number-theory track builds to Riemann: Euclid (infinitely many primes) → Euler (the product formula, ∑1/p = ∞) → Chebyshev (the right order of growth) → ζ(s), the Prime Number Theorem and the Riemann Hypothesis.
 
 ## How it adapts
 
-1. **Concept graph** (`site/js/content/concepts.js`) — 15 concepts with prerequisites, each with a primer and a diagnostic question.
-2. **Diagnostic** — picks the question with the most expected inferences: a hit marks all prerequisites solid, a miss marks all dependents weak. It weights the two by the learner's running hit rate, so experts get asked deep concepts and novices shallow ones. 5–12 questions instead of 15.
+1. **Concept graph** (`site/js/content/concepts.js`) — 21 concepts with prerequisites, each with a primer and a diagnostic question.
+2. **Diagnostic** — picks the question with the most expected inferences: a hit marks all prerequisites solid, a miss marks all dependents weak. It weights the two by the learner's running hit rate, so experts get asked deep concepts and novices shallow ones. Capped at 12 questions; anything still unassessed starts at an estimate from the hit rate and calibrates as you go.
 3. **Mastery model** — each concept has p ∈ (0,1), updated by a decaying learning rate (floored at 0.2 so it keeps tracking) on every check question, "Got it" and "I'm lost".
 4. **Per-step mode** from the weakest concept the step uses:
    - **Challenge** (p ≥ 0.75): claim only; try to justify before revealing.
@@ -15,7 +22,7 @@ Adaptive, step-by-step walkthroughs of famous proofs. Static site: vanilla JS mo
    - **Guided** (p < 0.4): full walkthrough + inline refreshers for the weak concepts.
 
    A wrong check answer or "I'm lost" drops that step to Guided immediately and lowers the concepts.
-5. **Path** — recommends the open theorem with the highest readiness (concept mastery + completed prerequisite theorems) and lists the gaps you'll get refreshers on.
+5. **Path** — recommends proofs whose prerequisite proofs are done first, then the one with the highest readiness (concept mastery + completed prerequisite theorems) and lists the gaps you'll get refreshers on.
 
 ## Layout
 
