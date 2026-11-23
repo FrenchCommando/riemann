@@ -26,7 +26,7 @@ const pct = (x) => Math.round(x * 100);
 const bar = (x, label = '') =>
   `<span class="bar" role="img" aria-label="${label} ${pct(x)}%"><span style="width:${pct(x)}%"></span></span>`;
 const masteryLabel = (x) => (x >= E.HI ? 'solid' : x >= E.LO ? 'shaky' : 'new');
-const chip = (id) => `<a class="chip ${masteryLabel(E.p(state, id))}" href="#/c/${id}">${conceptById[id].name}</a>`;
+const chip = (id) => `<a class="chip ${masteryLabel(E.p(state, id))}" href="#c-${id}">${conceptById[id].name}</a>`;
 const MODE_TEXT = {
   challenge: ['Challenge', 'You know the ideas here — try to justify the claim before revealing.'],
   standard: ['Standard', 'Claim and justification, with more detail on demand.'],
@@ -53,7 +53,7 @@ function viewHome() {
     <section class="card hero">
       <h2>Start by calibrating</h2>
       <p>A short diagnostic (one question per concept, skipping what it can infer — 5–12 questions, about two minutes) sets how much detail each proof step shows you. It keeps adapting as you go.</p>
-      <div class="row"><a class="btn primary" href="#/diagnostic">Take the diagnostic</a>
+      <div class="row"><a class="btn primary" href="#diagnostic">Take the diagnostic</a>
       <button class="btn ghost" data-act="skip-diag">Skip — start from scratch</button></div>
     </section>`;
 
@@ -63,10 +63,10 @@ function viewHome() {
     recHtml = `
       <section class="card rec">
         <div class="eyebrow">Recommended next</div>
-        <h2><a href="#/t/${rec.id}">${fi(rec.title)}</a></h2>
+        <h2><a href="#t-${rec.id}">${fi(rec.title)}</a></h2>
         <p class="muted">${fi(rec.statement)}</p>
         ${g.length ? `<p class="small">Will be guided through: ${g.map(chip).join(' ')}</p>` : ''}
-        <a class="btn primary" href="#/t/${rec.id}">${state.progress[rec.id]?.step ? 'Continue' : 'Start'}</a>
+        <a class="btn primary" href="#t-${rec.id}">${state.progress[rec.id]?.step ? 'Continue' : 'Start'}</a>
       </section>`;
   } else {
     recHtml = `<section class="card rec"><h2>All proofs complete.</h2><p>Switch to Challenge mode in Settings and run them again without peeking.</p></section>`;
@@ -76,7 +76,7 @@ function viewHome() {
     const pr = state.progress[t.id];
     const status = pr?.done ? '<span class="tag done">done</span>' : pr?.step ? `<span class="tag">step ${pr.step + 1}/${t.steps.length}</span>` : '';
     const builds = (t.requiresTheorems ?? []).filter((x) => !E.isDone(state, x));
-    return `<li><a href="#/t/${t.id}" class="theorem-row">
+    return `<li><a href="#t-${t.id}" class="theorem-row">
       <span class="t-title">${fi(t.title)} ${status}</span>
       <span class="t-meta">${t.attribution}${builds.length ? ` · builds on ${builds.map((x) => fi(theoremById[x].title)).join(', ')}` : ''}</span>
       <span class="t-ready">readiness ${bar(E.readiness(state, t), 'readiness')}</span>
@@ -85,7 +85,7 @@ function viewHome() {
 
   return `${calib}${recHtml}
     <section><h3>Proofs</h3><ul class="theorems">${list}</ul></section>
-    <section><h3>Your concept map <a class="small" href="#/concepts">all concepts →</a></h3>
+    <section><h3>Your concept map <a class="small" href="#concepts">all concepts →</a></h3>
       <div class="chips">${E.topoOrder(concepts).map(chip).join(' ')}</div>
       <p class="small muted">Green = solid, amber = shaky, grey = new. Tap one to read its primer or practise.</p>
     </section>`;
@@ -100,7 +100,7 @@ function viewDiagnostic() {
     return `<section class="card"><h2>Calibrated</h2>
       <p>${solid} of ${concepts.length} concepts look solid. Proof steps that rely on the others will be guided, with refreshers inline.</p>
       <p>Answered ${ui.diag.asked.length} questions; inferred ${ui.diag.inferred.length} from the prerequisite graph.</p>
-      <a class="btn primary" href="#/">See your path</a></section>`;
+      <a class="btn primary" href="#home">See your path</a></section>`;
   }
   ui.current = id;
   const c = conceptById[id];
@@ -118,7 +118,7 @@ function viewDiagnostic() {
 
 function primerCard(id) {
   const c = conceptById[id];
-  return `<aside class="primer"><div class="eyebrow">Refresher · <a href="#/c/${id}">${c.name}</a></div>${fb(c.primer)}</aside>`;
+  return `<aside class="primer"><div class="eyebrow">Refresher · <a href="#c-${id}">${c.name}</a></div>${fb(c.primer)}</aside>`;
 }
 
 function stepHtml(t, s, i, cur) {
@@ -178,15 +178,15 @@ function viewTheorem(id) {
       <p><strong>Takeaway.</strong> ${fi(t.takeaway)}</p>
       <div class="row">${pr.done ? '' : `<button class="btn primary" data-act="complete">Mark complete</button>`}
       <button class="btn ghost" data-act="restart">Walk through again</button>
-      <a class="btn ghost" href="#/">Back to path</a></div></section>` : '';
+      <a class="btn ghost" href="#home">Back to path</a></div></section>` : '';
 
   return `<article class="theorem">
-    <a class="small" href="#/">← Path</a>
+    <a class="small" href="#home">← Path</a>
     <h1>${fi(t.title)}</h1>
     <div class="muted small">${t.attribution}</div>
     <div class="statement"><span class="eyebrow">Theorem</span>${fb(t.statement)}</div>
     <p>${fi(t.intro)}</p>
-    ${builds.length ? `<p class="note">Builds on ${builds.map((x) => `<a href="#/t/${x}">${fi(theoremById[x].title)}</a>`).join(', ')} — you can go ahead, but those will make more sense first.</p>` : ''}
+    ${builds.length ? `<p class="note">Builds on ${builds.map((x) => `<a href="#t-${x}">${fi(theoremById[x].title)}</a>`).join(', ')} — you can go ahead, but those will make more sense first.</p>` : ''}
     ${g.length && cur === 0 ? `<p class="note">You'll get refreshers on: ${g.map(chip).join(' ')}</p>` : ''}
     <div class="eyebrow">Proof · ${Math.min(cur, t.steps.length)}/${t.steps.length} steps</div>
     <ol class="steps">${steps}</ol>${end}</article>`;
@@ -196,7 +196,7 @@ function viewConcepts() {
   const rows = E.topoOrder(concepts).map((id) => {
     const c = conceptById[id];
     const x = E.p(state, id);
-    return `<li><a href="#/c/${id}" class="concept-row"><span>${c.name}</span>${bar(x, c.name)}<span class="small muted">${masteryLabel(x)}</span></a></li>`;
+    return `<li><a href="#c-${id}" class="concept-row"><span>${c.name}</span>${bar(x, c.name)}<span class="small muted">${masteryLabel(x)}</span></a></li>`;
   }).join('');
   return `<h1>Concepts</h1><p class="muted">Ordered so prerequisites come first.</p><ul class="concepts">${rows}</ul>`;
 }
@@ -206,7 +206,7 @@ function viewConcept(id) {
   if (!c) return `<p>Unknown concept.</p>`;
   const usedIn = theorems.filter((t) => t.prereqs.includes(id) || t.steps.some((s) => s.concepts.includes(id)));
   const dependents = concepts.filter((d) => d.prereqs.includes(id));
-  return `<article><a class="small" href="#/concepts">← Concepts</a>
+  return `<article><a class="small" href="#concepts">← Concepts</a>
     <h1>${c.name}</h1><p class="muted">${fi(c.summary)}</p>
     <p class="small">Mastery ${bar(E.p(state, id), c.name)} ${masteryLabel(E.p(state, id))}</p>
     <section class="card">${fb(c.primer)}</section>
@@ -214,7 +214,7 @@ function viewConcept(id) {
       ${ui.answers?.practice !== undefined ? `<button class="btn ghost" data-act="retry">Try again</button>` : ''}</section>
     ${c.prereqs.length ? `<p class="small">Builds on: ${c.prereqs.map(chip).join(' ')}</p>` : ''}
     ${dependents.length ? `<p class="small">Leads to: ${dependents.map((d) => chip(d.id)).join(' ')}</p>` : ''}
-    ${usedIn.length ? `<p class="small">Used in: ${usedIn.map((t) => `<a href="#/t/${t.id}">${fi(t.title)}</a>`).join(' · ')}</p>` : ''}
+    ${usedIn.length ? `<p class="small">Used in: ${usedIn.map((t) => `<a href="#t-${t.id}">${fi(t.title)}</a>`).join(' · ')}</p>` : ''}
   </article>`;
 }
 
@@ -232,7 +232,7 @@ function viewSettings() {
       <div class="row">
         <button class="btn" data-act="export">Export</button>
         <label class="btn">Import<input type="file" accept="application/json" data-act="import" hidden></label>
-        <a class="btn" href="#/diagnostic">Redo diagnostic</a>
+        <a class="btn" href="#diagnostic">Redo diagnostic</a>
         <button class="btn danger" data-act="reset">Reset everything</button>
       </div></section>`;
 }
@@ -240,7 +240,10 @@ function viewSettings() {
 // ---------- router ----------
 
 function route() {
-  const [, view, id] = (location.hash || '#/').slice(1).split('/');
+  // Routes are plain #names (#home, #t-sqrt2, #c-primes, #concepts, #prefs, #diagnostic).
+  const h = location.hash.slice(1) || 'home';
+  const m = h.match(/^([tc])-(.+)$/);
+  const view = m ? m[1] : h, id = m?.[2];
   if (view !== ui.view || id !== ui.id) ui = { view, id };
   let html;
   switch (view) {
@@ -248,11 +251,12 @@ function route() {
     case 't': html = viewTheorem(id); break;
     case 'concepts': html = viewConcepts(); break;
     case 'c': html = viewConcept(id); break;
-    case 'settings': html = viewSettings(); break;
+    case 'prefs': html = viewSettings(); break;
     default: html = viewHome();
   }
   app.innerHTML = html;
-  document.querySelectorAll('nav a').forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#/${view ?? ''}` || (view === 'c' && a.getAttribute('href') === '#/concepts') || (!view && a.getAttribute('href') === '#/')));
+  const nav = { t: 'home', diagnostic: 'home', c: 'concepts' }[view] ?? view;
+  document.querySelectorAll('nav a').forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${nav}`));
 }
 
 function rerender(scrollTo) {
@@ -308,7 +312,7 @@ app.addEventListener('click', (ev) => {
       pr.step += 1; save();
       return rerender('.step.current, .done-card');
     }
-    case 'complete': E.completeTheorem(state, t); save(); location.hash = '#/'; return;
+    case 'complete': E.completeTheorem(state, t); save(); location.hash = '#home'; return;
     case 'restart': state.progress[t.id].step = 0; ui = { view: ui.view, id: ui.id, review: true }; save(); break;
     case 'retry': delete ui.answers.practice; break;
     case 'export': {
@@ -317,7 +321,7 @@ app.addEventListener('click', (ev) => {
       a.click(); URL.revokeObjectURL(a.href); return;
     }
     case 'reset':
-      if (el.dataset.confirm) { state = E.initialState(); save(); location.hash = '#/'; return; }
+      if (el.dataset.confirm) { state = E.initialState(); save(); location.hash = '#home'; return; }
       el.dataset.confirm = '1'; el.textContent = 'Tap again to confirm'; return;
     default: return;
   }
@@ -331,7 +335,7 @@ app.addEventListener('change', async (ev) => {
     try {
       const s = JSON.parse(await el.files[0].text());
       if (s.v !== 1 || typeof s.mastery !== 'object') throw new Error('not a Riemann progress file');
-      state = s; save(); location.hash = '#/';
+      state = s; save(); location.hash = '#home';
     } catch (e) { alert(`Import failed: ${e.message}`); }
   }
 });

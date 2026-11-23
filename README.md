@@ -25,7 +25,7 @@ site/                 everything served
   js/format.js        $math$ / **md** → HTML, KaTeX rendered here
   js/app.js           hash router + views
   js/content/         concepts + one file per theorem
-  vendor/katex/       pinned KaTeX 0.16.x (woff2 only)
+  vendor/katex/       pinned KaTeX 0.16.47 (ES module + CSS + woff2 fonts)
 test/                 node --test: content integrity, every formula through
                       KaTeX in strict mode, engine behaviour
 deploy/               Pi: Dockerfile, inner nginx, compose, edge vhost, deploy.sh
