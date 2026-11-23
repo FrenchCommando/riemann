@@ -1,0 +1,10 @@
+{
+  "name": "riemann",
+  "private": true,
+  "type": "module",
+  "description": "Adaptive step-by-step walkthroughs of famous proofs. Static site, no build step.",
+  "scripts": {
+    "test": "node --test test/*.test.mjs",
+    "serve": "python3 -m http.server 8080 --directory site"
+  }
+}
