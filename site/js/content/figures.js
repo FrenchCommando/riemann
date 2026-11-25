@@ -11,11 +11,21 @@ export const path = (d, cls, attrs = '') => `<path d="${d}" class="${cls}"${attr
 
 export const text = (x, y, s, cls = '') => `<text x="${x}" y="${y}" class="f-lab${cls ? ' ' + cls : ''}">${s}</text>`;
 
-export const dot = (x, y, cls = 'f-dot', r = 3) => `<circle cx="${x}" cy="${y}" r="${r}" class="${cls}"/>`;
+export const rect = (x, y, w, h, cls) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" class="${cls}"/>`;
+
+export const dot =(x, y, cls = 'f-dot', r = 3) => `<circle cx="${x}" cy="${y}" r="${r}" class="${cls}"/>`;
 
 // Path through a list of [x, y] points (rounded to 0.1 to keep the markup small).
 export const line = (points, cls, close = false) =>
   path('M' + points.map(([x, y]) => `${+x.toFixed(1)} ${+y.toFixed(1)}`).join('L') + (close ? 'Z' : ''), cls);
+
+// A table of cells: rows of strings, cell size s, origin (x0, y0); highlight(i, j)
+// returns a class for the cell background, or '' for none.
+export const grid = (rows, x0, y0, s, highlight = () => '', textCls = () => '') =>
+  rows.flatMap((row, i) => row.map((v, j) => {
+    const x = x0 + j * s, y = y0 + i * s, h = highlight(i, j);
+    return (h ? rect(x, y, s, s, h) : '') + rect(x, y, s, s, 'f-cell') + (v === '' ? '' : text(x + s / 2, y + s / 2, v, textCls(i, j)));
+  })).join('');
 
 // x² as SVG text.
 export const sq = (x) => `${x}<tspan dy="-0.45em" font-size="70%">2</tspan>`;

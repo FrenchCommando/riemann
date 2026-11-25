@@ -1,4 +1,20 @@
+import { svg, path, text } from '../figures.js';
+
 const r = String.raw;
+
+// Two factor trees of 360. Nodes: [label, x, y, parentIndex]; primes are leaves.
+const tree = (label, nodes) => svg('0 0 230 195', label,
+  ...nodes.filter((n) => n[3] !== undefined).map(([, x, y, pi]) =>
+    path(`M${nodes[pi][1]} ${nodes[pi][2] + 11}L${x} ${y - 11}`, 'f-axis')),
+  ...nodes.map(([t, x, y], i) => text(x, y, t, nodes.some((n) => n[3] === i) ? '' : 'f-acc f-v')));
+const tree1 = tree('Factor tree: 360 splits as 8 times 45; 8 as 2 times 4, 4 as 2 times 2; 45 as 5 times 9, 9 as 3 times 3', [
+  ['360', 115, 20], ['8', 60, 70, 0], ['45', 170, 70, 0],
+  ['2', 30, 120, 1], ['4', 90, 120, 1], ['2', 70, 170, 4], ['2', 110, 170, 4],
+  ['5', 145, 120, 2], ['9', 200, 120, 2], ['3', 180, 170, 8], ['3', 220, 170, 8]]);
+const tree2 = tree('Factor tree: 360 splits as 12 times 30; 12 as 3 times 4, 4 as 2 times 2; 30 as 5 times 6, 6 as 2 times 3', [
+  ['360', 115, 20], ['12', 60, 70, 0], ['30', 170, 70, 0],
+  ['3', 30, 120, 1], ['4', 90, 120, 1], ['2', 70, 170, 4], ['2', 110, 170, 4],
+  ['5', 145, 120, 2], ['6', 200, 120, 2], ['2', 180, 170, 8], ['3', 220, 170, 8]]);
 
 export default {
   id: 'fta',
@@ -6,6 +22,10 @@ export default {
   title: 'Fundamental Theorem of Arithmetic',
   attribution: 'Euclid (key lemma); first complete proof Gauss, 1801',
   statement: r`Every integer $n \ge 2$ is a product of primes, and this factorisation is unique up to the order of the factors.`,
+  figure: {
+    svgs: [tree1, tree2],
+    caption: r`Two different ways to break down $360$ end in the same primes: $2 \cdot 2 \cdot 2 \cdot 3 \cdot 3 \cdot 5$. Existence says the splitting always ends; uniqueness says the leaves never depend on the choices.`,
+  },
   prereqs: ['induction', 'primes', 'divisibility', 'gcd'],
   intro: r`Existence is easy. Uniqueness is the real content — it fails in other number systems (in $\mathbb{Z}[\sqrt{-5}]$, $6 = 2 \cdot 3 = (1+\sqrt{-5})(1-\sqrt{-5})$). The proof routes through Bézout's identity and Euclid's lemma.`,
   steps: [

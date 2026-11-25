@@ -155,6 +155,20 @@ details summary { font: .85rem var(--sans); color: var(--accent); cursor: pointe
 .f-dot2 { fill: var(--accent); }
 .f-strip { fill: color-mix(in srgb, var(--accent) 14%, transparent); }
 .f-start { text-anchor: start; }
+.f-cell { fill: none; stroke: var(--rule); stroke-width: 1; }
+.f-hl { fill: color-mix(in srgb, var(--accent) 22%, transparent); }
+.f-muted { fill: var(--muted); }
+.f-bar { fill: color-mix(in srgb, var(--ink) 35%, transparent); }
+.f-bar2 { fill: var(--accent); }
+.f-c0, .f-c1, .f-c2, .f-c3 { fill: none; stroke-width: 1.6; stroke-linejoin: round; }
+.f-c0 { stroke: var(--accent); stroke-width: 2.4; }
+.f-c1 { stroke: var(--ok); }
+.f-c2 { stroke: var(--warn); }
+.f-c3 { stroke: var(--muted); }
+.f-d0 { fill: var(--accent); }
+.f-d1 { fill: var(--ok); }
+.f-d2 { fill: var(--warn); }
+.f-d3 { fill: var(--muted); }
 
 /* roadmaps */
 .tag.cited { background: var(--warn-bg); color: var(--warn); }

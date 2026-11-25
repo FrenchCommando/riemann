@@ -1,4 +1,33 @@
+import { svg, path, text, grid, line } from '../figures.js';
+
 const r = String.raw;
+
+// Multiplying odd residues mod 4.
+const S = 56;
+const table = svg('0 0 240 190', 'Multiplication table mod 4 for the odd classes 1 and 3: 1 times 1 is 1, 1 times 3 is 3, 3 times 1 is 3, 3 times 3 is 1',
+  text(60, 40, '×', 'f-sm'),
+  text(88 + S / 2, 40, '1', 'f-sm f-v'), text(88 + 3 * S / 2, 40, '3', 'f-sm f-v'),
+  text(60, 60 + S / 2, '1', 'f-sm f-v'), text(60, 60 + 3 * S / 2, '3', 'f-sm f-v'),
+  grid([['1', '3'], ['3', '1']], 88, 60, S, (i, j) => (i === 0 && j === 0 ? 'f-sq2' : i === 1 && j === 1 ? 'f-sq' : ''), () => 'f-big'));
+
+// Chebyshev's bias: #{p ≤ x, p ≡ 3 mod 4} − #{p ≤ x, p ≡ 1 mod 4} for x ≤ 3000.
+const N = 3000;
+const sieve = new Uint8Array(N + 1);
+const race = [[0, 0]];
+let diff = 0, top = 0;
+for (let n = 2; n <= N; n++) {
+  if (sieve[n]) continue;
+  for (let m = n * n; m <= N; m += n) sieve[m] = 1;
+  if (n % 2) { race.push([n, diff]); diff += n % 4 === 3 ? 1 : -1; race.push([n, diff]); top = Math.max(top, diff); }
+}
+race.push([N, diff]);
+const W = 280 / N, H = 140 / top;
+const bias = svg('-30 -165 340 200', "Graph of the number of primes up to x that are 3 mod 4 minus the number that are 1 mod 4, for x up to 3000: it stays at or above zero throughout, Chebyshev's bias",
+  path('M0 0H285M0 15V-150', 'f-axis'),
+  line(race.map(([x, y]) => [W * x, -H * y]), 'f-curve'),
+  ...[1000, 2000, 3000].map((x) => text(W * x, 14, String(x), 'f-pt')),
+  text(-14, 0, '0', 'f-pt'), text(-16, -H * top, String(top), 'f-pt'),
+  text(140, -150, '#(3 mod 4) − #(1 mod 4)', 'f-pt f-acc'));
 
 export default {
   id: 'primes3mod4',
@@ -20,6 +49,10 @@ export default {
     {
       title: 'Ones are closed under multiplication',
       claim: r`A product of numbers $\equiv 1 \pmod 4$ is $\equiv 1 \pmod 4$.`,
+      figure: {
+        svgs: [table],
+        caption: r`Odd classes mod 4 under multiplication. Ones only make ones (top left), so a number $\equiv 3$ needs a factor $\equiv 3$. But two threes also make a one (bottom right), which is why the trick fails for $4k + 1$.`,
+      },
       why: r`Congruences multiply: $1 \cdot 1 \cdot \ldots \cdot 1 \equiv 1$.`,
       detail: r`So a number $\equiv 3 \pmod 4$ **cannot** have all its prime factors $\equiv 1$. If it is odd, at least one of its prime factors is $\equiv 3$.
 
@@ -67,6 +100,10 @@ If $q = p_i$: $q \mid 4p_1 \cdots p_n$ and $q \mid N$, so $q$ divides their diff
     {
       title: "Beyond: Dirichlet's theorem",
       claim: r`Every progression $a, a + m, a + 2m, \dots$ with $\gcd(a, m) = 1$ contains infinitely many primes.`,
+      figure: {
+        svgs: [bias],
+        caption: r`Both classes get their fair share in the long run (Dirichlet), but the race is lopsided: primes $\equiv 3 \pmod 4$ are never behind until $x = 26861$, the first prime at which the $1 \bmod 4$ side takes the lead (Chebyshev's bias). Littlewood proved the lead changes hands infinitely often.`,
+      },
       why: r`Elementary tricks like this one only handle a few progressions. Dirichlet's proof uses analysis: $L$-functions, cousins of the zeta function.`,
       detail: r`$4k + 1$ can be done with a different trick ($-1$ is a square mod $p$ iff $p \equiv 1 \pmod 4$, applied to $N = (2p_1\cdots p_n)^2 + 1$). But no elementary trick handles all progressions.
 

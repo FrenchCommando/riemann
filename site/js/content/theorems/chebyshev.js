@@ -1,4 +1,18 @@
+import { svg, path, rect, text } from '../figures.js';
+
 const r = String.raw;
+
+// Row 2n = 20 of Pascal's triangle: the middle entry is the largest, so it beats
+// the average 4^10 / 21.
+const row = Array.from({ length: 21 }, (_, k) => { let c = 1; for (let i = 1; i <= k; i++) c = (c * (21 - i)) / i; return c; });
+const max = row[10], avg = 4 ** 10 / 21, B = 190, Hs = 165 / max;
+const pascalRow = svg('0 0 300 225', 'Bar chart of the 21 binomial coefficients 20 choose k: a bell shape peaking at k = 10 with 184756, well above a dashed line at their average, 4 to the 10 over 21, about 49932',
+  ...row.map((c, k) => rect(13 + 13 * k, B - Hs * c, 10, Hs * c, k === 10 ? 'f-bar2' : 'f-bar')),
+  path(`M8 ${B - Hs * avg}H290`, 'f-alt'),
+  path(`M8 ${B}H290`, 'f-axis'),
+  text(18 + 13 * 10, B - Hs * max - 10, '184756', 'f-pt f-acc'),
+  text(250, B - Hs * avg - 10, 'average', 'f-pt'),
+  text(18, B + 14, '0', 'f-pt'), text(18 + 13 * 10, B + 14, '10', 'f-pt'), text(18 + 13 * 20, B + 14, '20', 'f-pt'));
 
 export default {
   id: 'chebyshev',
@@ -23,6 +37,10 @@ Example: $\binom{10}{5} = 252 = 2^2 \cdot 3^2 \cdot 7$. Each prime power $4, 9, 
     {
       title: 'Lower bound',
       claim: r`$\displaystyle \binom{2n}{n} \ge \frac{4^n}{2n+1}$.`,
+      figure: {
+        svgs: [pascalRow],
+        caption: r`Row $2n = 20$: the $21$ coefficients $\binom{20}{k}$ sum to $4^{10}$, so their average is $4^{10}/21 \approx 49932$ (dashed). The middle one, $\binom{20}{10} = 184756$, is the largest, hence above average.`,
+      },
       why: r`$4^n = (1+1)^{2n} = \sum_{k=0}^{2n} \binom{2n}k$ has $2n+1$ terms, and the middle one is the largest.`,
       detail: r`By the binomial theorem with $a = b = 1$, the $2n+1$ coefficients in row $2n$ sum to $2^{2n} = 4^n$.
 

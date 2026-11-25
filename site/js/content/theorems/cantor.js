@@ -1,4 +1,17 @@
+import { svg, grid, text } from '../figures.js';
+
 const r = String.raw;
+
+// A sample list: digits of r_1..r_6, diagonal highlighted, and x built from it
+// (5 if the diagonal digit isn't 5, else 4).
+const digits = ['141592', '718281', '505000', '333333', '414253', '001259'].map((s) => [...s]);
+const xDigits = digits.map((d, n) => (d[n] === '5' ? '4' : '5'));
+const S = 32;
+const diagonal = svg('0 0 340 300', 'A grid whose rows are the decimal digits of r1 to r6, with the diagonal digits highlighted, and below it the number x whose n-th digit differs from the n-th diagonal digit',
+  ...digits.map((_, i) => text(48, 20 + S * i + S / 2, `r${'₁₂₃₄₅₆'[i]} = 0.`, 'f-sm f-start')),
+  grid(digits.map((d) => [...d, '…']), 96, 20, S, (i, j) => (i === j ? 'f-sq' : '')),
+  text(48, 250 + S / 2, 'x = 0.', 'f-sm f-start f-acc'),
+  grid([[...xDigits, '…']], 96, 250, S, (i, j) => (j < 6 ? 'f-sq2' : ''), () => 'f-acc'));
 
 export default {
   id: 'cantor',
@@ -48,6 +61,10 @@ The bold digits form the **diagonal**. (Some numbers have two expansions, like $
     {
       title: 'Change every diagonal digit',
       claim: r`Define $x = 0.e_1 e_2 e_3 \dots$ where $e_n = 5$ if $d_{nn} \ne 5$, and $e_n = 4$ if $d_{nn} = 5$.`,
+      figure: {
+        svgs: [diagonal],
+        caption: r`Go down the diagonal and change every digit. Here $x = 0.554545\ldots$ differs from $r_1$ in digit 1, from $r_2$ in digit 2, and so on: it can't be any row.`,
+      },
       why: r`$x$ differs from $r_n$ in the $n$-th digit, for every $n$.`,
       detail: r`Go down the diagonal and change each digit. The specific rule (use 4 and 5) only matters for the next step; any rule that always changes the digit and never uses 0 or 9 works.
 

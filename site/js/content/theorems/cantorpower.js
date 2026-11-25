@@ -1,4 +1,20 @@
+import { svg, grid, text } from '../figures.js';
+
 const r = String.raw;
+
+// S = {1, 2, 3, 4}; row x, column y: ● if y ∈ f(x). f(1) = {1, 3}, f(2) = S,
+// f(3) = {2}, f(4) = ∅. D flips the diagonal: D = {3, 4}.
+const f = [[1, 3], [1, 2, 3, 4], [2], []];
+const S = 40;
+const table = f.map((fx) => [1, 2, 3, 4].map((y) => (fx.includes(y) ? '●' : '')));
+const D = [1, 2, 3, 4].map((x) => (f[x - 1].includes(x) ? '' : '●'));
+const memberTable = svg('0 0 300 290', 'A membership table for f from S = {1, 2, 3, 4} to its subsets: row x has a dot in column y when y is in f(x). The diagonal is highlighted, and the set D below flips every diagonal entry, so D = {3, 4}',
+  ...[1, 2, 3, 4].map((y, j) => text(110 + S * j + S / 2, 28, String(y), 'f-sm')),
+  text(286, 28, 'y', 'f-pt'), text(28, 40 + 2 * S, 'x', 'f-pt'),
+  ...f.map((fx, i) => text(60, 40 + S * i + S / 2, `f(${i + 1})`, 'f-sm')),
+  grid(table, 110, 40, S, (i, j) => (i === j ? 'f-sq' : '')),
+  text(60, 220 + S / 2, 'D', 'f-sm f-acc'),
+  grid([D], 110, 220, S, () => 'f-sq2', () => 'f-acc'));
 
 export default {
   id: 'cantorpower',
@@ -20,6 +36,10 @@ export default {
     {
       title: 'The diagonal set',
       claim: r`Let $D = \{x \in S : x \notin f(x)\}$.`,
+      figure: {
+        svgs: [memberTable],
+        caption: r`Row $x$ marks the members of $f(x)$. $D$ takes the diagonal and flips it: $1 \in f(1)$ so $1 \notin D$; $3 \notin f(3)$ so $3 \in D$. $D = \{3, 4\}$ disagrees with every row on the diagonal, so it is no $f(x)$.`,
+      },
       why: r`$D$ collects the elements that are not members of their own image. It is a perfectly good subset of $S$.`,
       detail: r`For each $x$ ask one yes/no question: is $x$ in the set $f(x)$? Put $x$ into $D$ exactly when the answer is **no**.
 

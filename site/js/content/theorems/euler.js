@@ -1,4 +1,31 @@
+import { svg, path, text, line } from '../figures.js';
+
 const r = String.raw;
+
+// Partial sums of 1/p for p ≤ 10^4 against log log N + 0.2615 (Mertens), log-scale x.
+const N = 10000, DX = 70, DY = 100; // 70 units per decade, 100 per unit of sum
+const sieve = new Uint8Array(N + 1);
+const sums = [];
+let s = 0;
+for (let n = 2; n <= N; n++) {
+  if (sieve[n]) continue;
+  for (let m = n * n; m <= N; m += n) sieve[m] = 1;
+  if (sums.length) sums.push([DX * Math.log10(n), -DY * s]);
+  s += 1 / n;
+  sums.push([DX * Math.log10(n), -DY * s]);
+}
+sums.push([DX * 4, -DY * s]);
+const mertens = [];
+for (let k = 24; k <= 200; k++) { const n = 10 ** (k / 50); mertens.push([DX * Math.log10(n), -DY * (Math.log(Math.log(n)) + 0.2615)]); }
+const sumFig = svg('-34 -280 350 305', 'Graph of the sum of 1 over p for primes up to N, for N up to ten thousand on a logarithmic axis, rising slowly and tracking the curve log log N plus 0.2615',
+  path('M0 0H290M0 0V-265', 'f-axis'),
+  ...[1, 2, 3, 4].map((d) => path(`M${DX * d} 0v5`, 'f-axis')),
+  ...['10', '100', '1000', '10⁴'].map((t, i) => text(DX * (i + 1), 16, t, 'f-pt')),
+  ...[1, 2].map((v) => path(`M0 ${-DY * v}h-5`, 'f-axis')),
+  text(-16, -DY, '1', 'f-pt'), text(-16, -2 * DY, '2', 'f-pt'),
+  path('M' + mertens.map(([x, y]) => `${x.toFixed(1)} ${y.toFixed(1)}`).join('L'), 'f-alt'),
+  line(sums, 'f-curve'),
+  text(150, -250, 'Σ 1/p', 'f-sm f-acc'), text(240, -150, 'log log N + 0.26', 'f-pt'));
 
 export default {
   id: 'euler',
@@ -87,6 +114,10 @@ With $x \le \frac12$ we have $\frac{1}{1-x} \le 2$, so the tail is $\le x^2$. Ap
     {
       title: 'Conclude',
       claim: r`$\displaystyle \sum_{p \le N} \frac1p \;\ge\; \log P_N - 2 \;\to\; \infty$.`,
+      figure: {
+        svgs: [sumFig],
+        caption: r`$\sum_{p \le N} 1/p$ for $N$ up to $10^4$ (log scale): it diverges, but only like $\log\log N$. At $N = 10^4$ it is about $2.48$; it passes $3$ only near $N \approx 5$ million, and at $N = 10^9$ it is still about $3.29$.`,
+      },
       why: r`Summing the bound: $\log P_N \le \sum_{p\le N} \frac1p + \sum_{p \le N} \frac1{p^2}$, and $\sum \frac1{p^2} \le \sum \frac1{n^2} \lt 2$.`,
       detail: r`$$\log P_N = \sum_{p \le N} -\log\Big(1 - \frac1p\Big) \le \sum_{p\le N}\frac1p + \sum_{p \le N}\frac{1}{p^2}.$$
 The second sum is a sub-sum of $\sum_n \frac1{n^2} \lt 2$. Rearranging, $\sum_{p\le N} \frac1p \ge \log P_N - 2$, and the right side $\to \infty$. ∎

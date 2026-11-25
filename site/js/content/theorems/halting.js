@@ -1,4 +1,23 @@
+import { svg, grid, text } from '../figures.js';
+
 const r = String.raw;
+
+// Row = program, column = input: does program i halt on input j? (sample values)
+const H = [
+  ['halts', 'loops', 'halts', 'halts', 'loops'],
+  ['loops', 'loops', 'halts', 'loops', 'halts'],
+  ['halts', 'halts', 'halts', 'loops', 'loops'],
+  ['halts', 'loops', 'loops', 'loops', 'halts'],
+  ['loops', 'halts', 'halts', 'halts', 'halts'],
+];
+const sym = (v) => (v === 'halts' ? '✓' : '∞');
+const S = 40;
+const haltTable = svg('0 0 320 300', 'A table: row i is program P i, column j is input P j, each entry says whether P i halts on P j. The diagonal is highlighted, and the program D below does the opposite of every diagonal entry',
+  ...[1, 2, 3, 4, 5].map((j) => text(80 + S * (j - 1) + S / 2, 24, `P${'₁₂₃₄₅'[j - 1]}`, 'f-sm')),
+  ...[1, 2, 3, 4, 5].map((i) => text(50, 40 + S * (i - 1) + S / 2, `P${'₁₂₃₄₅'[i - 1]}`, 'f-sm')),
+  grid(H.map((row) => row.map(sym)), 80, 40, S, (i, j) => (i === j ? 'f-sq' : '')),
+  text(50, 250 + S / 2, 'D', 'f-sm f-acc'),
+  grid([H.map((row, i) => (row[i] === 'halts' ? '∞' : '✓'))], 80, 250, S, () => 'f-sq2', () => 'f-acc'));
 
 export default {
   id: 'halting',
@@ -30,6 +49,10 @@ export default {
     {
       title: 'Build the contrarian program D',
       claim: r`Define $D(P)$: run $H(P, P)$; if it says **yes**, loop forever; if **no**, halt.`,
+      figure: {
+        svgs: [haltTable],
+        caption: r`Row $P_i$, column $P_j$: does $P_i$ halt on input $P_j$? (✓ halts, $\infty$ loops.) $D$ reads the diagonal through $H$ and does the opposite, so its row differs from every row $P_i$ at column $P_i$. But $D$ is a program, so it would have to be one of the rows.`,
+      },
       why: r`$D$ is a legitimate program: it calls $H$ as a subroutine and then does the opposite of what $H$ predicts about $P$ run on its own text.`,
       detail: r`In pseudocode:
 $$\textbf{D}(P):\quad \text{if } H(P, P) = \text{yes then loop forever, else halt.}$$

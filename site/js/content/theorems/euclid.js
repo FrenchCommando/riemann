@@ -1,4 +1,23 @@
+import { svg, path, text, dot } from '../figures.js';
+
 const r = String.raw;
+
+// List {2, 3, 5}, N = 31: on each prime's row of multiples, 31 lands one past 30.
+const U = 9; // units per 1
+const rows = [2, 3, 5].map((p, i) => {
+  const y = 40 + 50 * i;
+  const ticks = [];
+  for (let m = 0; m <= 30; m += p) ticks.push(path(`M${20 + U * m} ${y - 6}V${y + 6}`, 'f-mark'));
+  return [
+    path(`M20 ${y}H${20 + U * 32}`, 'f-axis'), ...ticks,
+    text(8, y, String(p), 'f-sm'),
+    dot(20 + U * 30, y, 'f-dot', 3.5), dot(20 + U * 31, y, 'f-dot2', 4),
+    path(`M${20 + U * 30} ${y - 8}Q${20 + U * 30.5} ${y - 20} ${20 + U * 31} ${y - 8}`, 'f-arc'),
+  ].join('');
+});
+const plusOne = svg('0 0 330 175', 'Three number lines with the multiples of 2, of 3 and of 5 marked; on each, 30 is a multiple and 31 sits one step past it',
+  ...rows,
+  text(20 + U * 30 - 9, 158, '30', 'f-pt'), text(20 + U * 31 + 9, 158, '31', 'f-pt f-acc'));
 
 export default {
   id: 'euclid',
@@ -19,6 +38,10 @@ export default {
     {
       title: 'Build a new number',
       claim: r`Let $N = p_1 p_2 \cdots p_n + 1$.`,
+      figure: {
+        svgs: [plusOne],
+        caption: r`For the list $2, 3, 5$: $\ 2 \cdot 3 \cdot 5 = 30$ is on every row of multiples, so $N = 31$ is one step past a multiple of each prime, and none of them divides it.`,
+      },
       why: r`$N$ is designed so that dividing it by any $p_i$ leaves remainder 1.`,
       detail: r`Multiply every prime on the list together, then add 1. For example, if the list were $2, 3, 5$, we'd get $N = 31$.
 

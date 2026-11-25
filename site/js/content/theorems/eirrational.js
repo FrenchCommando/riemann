@@ -1,4 +1,24 @@
+import { svg, path, rect, text, dot } from '../figures.js';
+
 const r = String.raw;
+
+// For q = 1..4: x_q = q!(e − Σ_{k≤q} 1/k!) lies in (0, 1/q), so never on an integer.
+const L = 260, X0 = 60;
+const fact = (n) => (n <= 1 ? 1 : n * fact(n - 1));
+const xq = (q) => { let s = 0; for (let k = 0; k <= q; k++) s += 1 / fact(k); return fact(q) * (Math.E - s); };
+const squeeze = svg('0 0 340 215', 'For q from 1 to 4, a number line from 0 to 1 with the interval from 0 to 1 over q shaded and the value x for that q marked inside it, never reaching an integer',
+  path(`M${X0} 30V200M${X0 + L} 30V200`, 'f-alt'),
+  text(X0, 16, '0', 'f-sm'), text(X0 + L, 16, '1', 'f-sm'),
+  ...[1, 2, 3, 4].flatMap((q) => {
+    const y = 20 + 42 * q;
+    return [
+      path(`M${X0} ${y}H${X0 + L}`, 'f-axis'),
+      rect(X0, y - 8, L / q, 16, 'f-strip'),
+      dot(X0 + L * xq(q), y, 'f-dot2', 4),
+      text(24, y, `q = ${q}`, 'f-pt'),
+      text(X0 + L * xq(q), y - 16, xq(q).toFixed(3), 'f-pt'),
+    ];
+  }));
 
 export default {
   id: 'eirrational',
@@ -65,6 +85,10 @@ And $q \ge 1$ gives $\frac1q \le 1$.`,
     {
       title: 'Conclude',
       claim: r`$x$ is an integer with $0 \lt x \lt 1$ — impossible. So $e$ is irrational.`,
+      figure: {
+        svgs: [squeeze],
+        caption: r`The actual values of $x = q!\,\big(e - \sum_{k \le q} \frac{1}{k!}\big)$ for $q = 1, 2, 3, 4$, each inside its shaded interval $(0, \frac1q)$. If $e$ were $\frac pq$, the $q$-th of these would have to be a whole number.`,
+      },
       why: r`There is no integer strictly between 0 and 1.`,
       detail: r`The idea: rational numbers can't be approximated *too* well by fractions with small denominators, but the partial sums of $e$ approximate it extremely well (error about $1/(q+1)!$). Quantifying this tension is the heart of transcendence theory: Hermite (1873) proved $e$ is not even a root of any polynomial with integer coefficients, and Lindemann (1882) did the same for $\pi$.`,
       concepts: ['contradiction'],

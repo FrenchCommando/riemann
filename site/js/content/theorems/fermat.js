@@ -1,4 +1,19 @@
+import { svg, text, dot } from '../figures.js';
+
 const r = String.raw;
+
+// Pascal's triangle, rows 0..7. An interior entry of row n is highlighted when n
+// divides it: every interior entry in the prime rows, but not in rows 4 and 6.
+const binom = (n, k) => { let c = 1; for (let i = 1; i <= k; i++) c = (c * (n - i + 1)) / i; return c; };
+const pascal = svg('0 0 340 250', "Pascal's triangle, rows 0 to 7. In rows 2, 3, 5 and 7 every interior entry is highlighted as divisible by the row number; in row 4 the 6, and in row 6 the 15s and 20, are not",
+  ...Array.from({ length: 8 }, (_, n) => [
+    text(16, 22 + 30 * n, String(n), 'f-pt'),
+    ...Array.from({ length: n + 1 }, (_, k) => {
+      const x = 180 + (k - n / 2) * 40, y = 22 + 30 * n, c = binom(n, k);
+      const interior = k > 0 && k < n;
+      return (interior && c % n === 0 ? dot(x, y, 'f-hl', 14) : '') + text(x, y, String(c), interior && c % n !== 0 ? 'f-sm f-muted' : 'f-sm');
+    }),
+  ].join('')));
 
 export default {
   id: 'fermat',
@@ -13,6 +28,10 @@ export default {
     {
       title: 'Key lemma: p divides the middle coefficients',
       claim: r`For $0 \lt k \lt p$, $\ p \mid \binom pk$.`,
+      figure: {
+        svgs: [pascal],
+        caption: r`Highlighted: interior entries of row $n$ divisible by $n$. The prime rows $2, 3, 5, 7$ are fully highlighted; rows $4$ and $6$ are not ($4 \nmid 6$, $6 \nmid 15$, $6 \nmid 20$).`,
+      },
       why: r`$\binom pk \cdot k!\,(p-k)! = p!$. The prime $p$ divides the right side, but divides none of the factors of $k!\,(p-k)!$ (all are less than $p$). By Euclid's lemma, $p \mid \binom pk$.`,
       detail: r`Write $p! = \binom pk \cdot k! \cdot (p-k)!$.
 

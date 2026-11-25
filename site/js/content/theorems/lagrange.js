@@ -1,4 +1,17 @@
+import { svg, poly, text, dot } from '../figures.js';
+
 const r = String.raw;
+
+// Z/12 on a clock; H = {0, 4, 8} and its cosets c + H are four rotated triangles.
+const pt = (k, rad) => {
+  const a = (Math.PI / 6) * k - Math.PI / 2;
+  return [150 + rad * Math.cos(a), 150 + rad * Math.sin(a)];
+};
+const fmt = ([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`;
+const cosets = svg('0 0 300 300', 'The twelve elements of Z/12 on a clock face, coloured by coset. The subgroup {0, 4, 8} and its three shifts {1, 5, 9}, {2, 6, 10}, {3, 7, 11} are joined into four triangles that share no vertex',
+  ...[0, 1, 2, 3].map((c) => poly([c, c + 4, c + 8].map((k) => fmt(pt(k, 105))).join(' '), `f-c${c}`)),
+  ...Array.from({ length: 12 }, (_, k) => dot(...pt(k, 105), `f-d${k % 4}`, 7)),
+  ...Array.from({ length: 12 }, (_, k) => text(...pt(k, 128), String(k), k % 4 === 0 ? 'f-sm f-acc f-v' : 'f-sm')));
 
 export default {
   id: 'lagrange',
@@ -33,6 +46,10 @@ export default {
     {
       title: 'Cosets partition G',
       claim: r`Every $g$ lies in a coset, and two cosets that overlap are equal.`,
+      figure: {
+        svgs: [cosets],
+        caption: r`$\mathbb Z/12$ with $H = \{0, 4, 8\}$ (bold triangle). Its cosets $H$, $1 + H$, $2 + H$, $3 + H$, one colour each, are rotated copies of the same triangle: no element is in two of them, each has $3$ elements, and together they cover all twelve, so $12 = 4 \cdot 3$.`,
+      },
       why: r`$g = ge \in gH$. If $gh_1 = kh_2$, then $g = k h_2 h_1^{-1}$, so every $gh = k(h_2 h_1^{-1} h) \in kH$; thus $gH \subseteq kH$, and symmetrically $kH \subseteq gH$.`,
       detail: r`(1) $e \in H$ since $H$ is a subgroup, so $g = ge \in gH$.
 

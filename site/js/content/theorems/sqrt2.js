@@ -1,4 +1,16 @@
+import { svg, rect, text } from '../figures.js';
+
 const r = String.raw;
+
+// Tennenbaum's picture, drawn with p = 7, q = 5 (49 vs 50: nearly a solution).
+// Big square side p = 280; q-squares side 200 in opposite corners.
+const tennenbaum = svg('0 0 340 340', 'A p by p square with two q by q squares in opposite corners: they overlap in a central square of side 2q minus p and leave two corner squares of side p minus q uncovered',
+  rect(30, 30, 280, 280, 'f-line'),
+  rect(30, 110, 200, 200, 'f-sq2'), rect(110, 30, 200, 200, 'f-sq2'),
+  rect(110, 110, 120, 120, 'f-sq'),
+  rect(30, 30, 80, 80, 'f-tri'), rect(230, 230, 80, 80, 'f-tri'),
+  text(170, 16, 'p'), text(16, 210, 'q'), text(324, 130, 'q'),
+  text(170, 170, '2q − p', 'f-sm'), text(70, 70, 'p − q', 'f-sm'), text(270, 270, 'p − q', 'f-sm'));
 
 export default {
   id: 'sqrt2',
@@ -66,8 +78,14 @@ This has exactly the shape of $p^2 = 2q^2$ with the roles changed, so the previo
     {
       title: 'Contradiction',
       claim: r`$p$ and $q$ are both divisible by 2, contradicting $\gcd(p,q) = 1$. So $\sqrt2$ is irrational.`,
+      figure: {
+        svgs: [tennenbaum],
+        caption: r`A second proof by picture (Tennenbaum). If $p^2 = 2q^2$, the two green $q \times q$ squares have total area $p^2$, so the doubly-covered middle must equal the two uncovered corners: $(2q - p)^2 = 2(p - q)^2$, a smaller solution. (Drawn with $p = 7$, $q = 5$, where $49$ nearly equals $50$.)`,
+      },
       why: r`We assumed no common factor, and derived the common factor 2. The assumption that $\sqrt2$ is rational must be false.`,
       detail: r`Recap of the logic: (rational) ⇒ (lowest-terms fraction exists) ⇒ (both parts even) ⇒ (not lowest terms). A statement implying its own negation is false.
+
+**The picture above is a second proof.** Take the solution with $p$ smallest. Since $1 \lt \frac pq \lt 2$, both $2q - p$ and $p - q$ are positive and $2q - p \lt p$. Two $q \times q$ squares placed in opposite corners of the $p \times p$ square have total area $2q^2 = p^2$, so the area counted twice (the middle square) equals the area missed (the two corners): $(2q - p)^2 = 2(p - q)^2$. That's a solution with a smaller first number, a contradiction. This is **infinite descent**, the method Fermat later uses for $x^4 + y^4 = z^2$.
 
 **Generalisation:** the same proof shows $\sqrt n$ is irrational whenever $n$ is not a perfect square — replace "even" with "divisible by a prime $\ell$ that appears an odd number of times in $n$".`,
       concepts: ['contradiction'],
