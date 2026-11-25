@@ -359,6 +359,21 @@ So $x^s$ has size $x^\sigma$ and rotates as $x$ grows, at a speed set by $t$. Th
     },
   },
   {
+    id: 'qr',
+    name: 'Squares mod p',
+    prereqs: ['modular'],
+    summary: 'Which numbers are perfect squares modulo a prime.',
+    primer: r`$a$ is a **square mod $p$** if $x^2 \equiv a \pmod p$ has a solution. For an odd prime $p$, exactly half of the nonzero residues are squares: $x$ and $-x$ have the same square, so $1^2, 2^2, \dots, \big(\tfrac{p-1}{2}\big)^2$ are all of them. Mod $7$ the nonzero squares are $1, 2, 4$ ($3^2 = 9 \equiv 2$).
+
+The **Legendre symbol** records the answer: $\big(\tfrac ap\big) = 1$ if $a$ is a nonzero square mod $p$, $-1$ if not. Euler's criterion computes it: $a^{(p-1)/2} \equiv \big(\tfrac ap\big) \pmod p$.`,
+    q: {
+      prompt: r`Is $5$ a square mod $11$?`,
+      options: [r`Yes: $4^2 = 16 \equiv 5$`, r`No`, r`Only if $11 \equiv 1 \pmod 4$`],
+      answer: 0,
+      explain: r`$4^2 = 16 = 11 + 5$. (The squares mod 11 are $1, 4, 9, 5, 3$.) The mod-4 condition is the rule for $-1$, not for $5$.`,
+    },
+  },
+  {
     id: 'curves',
     name: 'Elliptic curves mod p',
     prereqs: ['modular'],

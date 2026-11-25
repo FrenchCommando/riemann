@@ -2,16 +2,16 @@
 
 Adaptive, step-by-step walkthroughs of famous proofs. Static site: vanilla JS modules, vendored KaTeX, no build step, no backend, no tracking. Progress lives in the browser's localStorage (export/import in Settings).
 
-**17 proofs and 3 roadmaps**
+**17 proofs and 4 roadmaps**
 - *Geometry:* Pythagorean theorem (rearrangement, similar triangles, vectors)
 - *Number theory:* √2 irrational · infinitely many primes · Fundamental Theorem of Arithmetic · Fermat's Little Theorem · infinitely many primes ≡ 3 (mod 4) · Euler's ∑1/p diverges · Chebyshev's bound π(x) ≳ x/log x · all Pythagorean triples · Fermat for n = 4 (infinite descent) · −ζ′/ζ = ∑Λ(n)n⁻ˢ
 - *Sets & logic:* Cantor's diagonal (ℝ uncountable) · Cantor's theorem (|P(S)| > |S|) · halting problem
 - *Analysis:* e is irrational · Navier–Stokes energy identity and scaling
 - *Algebra:* Lagrange's theorem (→ Euler's theorem, a second proof of Fermat)
-- *Frontiers (roadmaps):* Fermat's Last Theorem · the Riemann Hypothesis · Navier–Stokes existence and smoothness
+- *Frontiers (roadmaps):* Fermat's Last Theorem · the Langlands program · the Riemann Hypothesis · Navier–Stokes existence and smoothness
 
 Three tracks lead to the frontier:
-- **Fermat:** Pythagoras → triples → n = 4 by descent → Wiles (Frey curve, Ribet, modularity).
+- **Fermat:** Pythagoras → triples → n = 4 by descent → Wiles (Frey curve, Ribet, modularity) → Langlands (reciprocity, x³ − x − 1 vs a weight-1 form, Sato–Tate).
 - **Riemann:** Euclid → Euler's product → Chebyshev → von Mangoldt → ζ(s), the Prime Number Theorem, RH.
 - **Navier–Stokes:** energy identity → scaling (why energy is supercritical) → the search for blow-up.
 
@@ -19,7 +19,7 @@ A **roadmap** (`kind: 'roadmap'`) maps a proof too long to walk through: it work
 
 ## How it adapts
 
-1. **Concept graph** (`site/js/content/concepts.js`) — 27 concepts with prerequisites, each with a primer and a diagnostic question.
+1. **Concept graph** (`site/js/content/concepts.js`) — 28 concepts with prerequisites, each with a primer and a diagnostic question.
 2. **Diagnostic** — picks the question with the most expected inferences: a hit marks all prerequisites solid, a miss marks all dependents weak. It weights the two by the learner's running hit rate, so experts get asked deep concepts and novices shallow ones. Capped at 12 questions; anything still unassessed starts at an estimate from the hit rate and calibrates as you go.
 3. **Mastery model** — each concept has p ∈ (0,1), updated by a decaying learning rate (floored at 0.2 so it keeps tracking) on every check question, "Got it" and "I'm lost".
 4. **Per-step mode** from the weakest concept the step uses:

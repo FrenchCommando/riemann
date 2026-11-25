@@ -19,6 +19,7 @@ import flt4 from './theorems/flt4.js';
 import vonmangoldt from './theorems/vonmangoldt.js';
 import energy from './theorems/energy.js';
 import flt from './theorems/flt.js';
+import langlands from './theorems/langlands.js';
 import rh from './theorems/rh.js';
 import navierstokes from './theorems/navierstokes.js';
 
@@ -29,7 +30,7 @@ export const theorems = [
   pythagoras, sqrt2, euclid, fta, cantor, cantorpower, halting,
   eirrational, fermat, lagrange, primes3mod4, euler, chebyshev,
   triples, flt4, vonmangoldt, energy,
-  flt, rh, navierstokes,
+  flt, langlands, rh, navierstokes,
 ];
 export const theoremById = Object.fromEntries(theorems.map((t) => [t.id, t]));
 export const fields = [...new Set(theorems.map((t) => t.field))];
