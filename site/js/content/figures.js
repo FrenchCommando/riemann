@@ -11,6 +11,12 @@ export const path = (d, cls, attrs = '') => `<path d="${d}" class="${cls}"${attr
 
 export const text = (x, y, s, cls = '') => `<text x="${x}" y="${y}" class="f-lab${cls ? ' ' + cls : ''}">${s}</text>`;
 
+export const dot = (x, y, cls = 'f-dot', r = 3) => `<circle cx="${x}" cy="${y}" r="${r}" class="${cls}"/>`;
+
+// Path through a list of [x, y] points (rounded to 0.1 to keep the markup small).
+export const line = (points, cls, close = false) =>
+  path('M' + points.map(([x, y]) => `${+x.toFixed(1)} ${+y.toFixed(1)}`).join('L') + (close ? 'Z' : ''), cls);
+
 // x² as SVG text.
 export const sq = (x) => `${x}<tspan dy="-0.45em" font-size="70%">2</tspan>`;
 

@@ -314,6 +314,68 @@ It measures length, $|u|^2 = u \cdot u$, and angle, $u \cdot v = |u|\,|v| \cos\t
     },
   },
   {
+    id: 'calculus',
+    name: 'Derivatives & integration by parts',
+    prereqs: [],
+    summary: 'Rates of change, and moving a derivative from one factor to the other.',
+    primer: r`The derivative $f'(t)$ is the rate of change of $f$. **Product rule** $(fg)' = f'g + fg'$; **chain rule** $\frac{d}{dt} f(g(t)) = f'(g(t))\,g'(t)$. Two instances used later: $\frac{d}{dt}\tfrac12 f(t)^2 = f f'$, and $\frac{d}{ds} n^{-s} = \frac{d}{ds} e^{-s\log n} = -\log n \cdot n^{-s}$.
+
+**Integration by parts** is the product rule integrated: $\int_a^b f g' = \big[fg\big]_a^b - \int_a^b f' g$. When the boundary term vanishes (for example, $f$ and $g$ periodic with period $b - a$), the derivative simply moves across with a minus sign: $\int f g' = -\int f' g$.`,
+    q: {
+      prompt: r`For a smooth $2\pi$-periodic $f$, what is $\int_0^{2\pi} f(x)\, f'(x)\,dx$?`,
+      options: [r`$0$`, r`$\int_0^{2\pi} f(x)^2\,dx$`, r`It depends on $f$`],
+      answer: 0,
+      explain: r`$f f' = \big(\tfrac12 f^2\big)'$, so the integral is $\tfrac12 f(2\pi)^2 - \tfrac12 f(0)^2 = 0$ by periodicity.`,
+    },
+  },
+  {
+    id: 'vectorcalc',
+    name: 'Gradient, divergence, Laplacian',
+    prereqs: ['calculus', 'vectors'],
+    summary: 'The operators in the fluid equations, and integration by parts in 3D.',
+    primer: r`For a function $p$ on space, the **gradient** $\nabla p = (\partial_1 p, \partial_2 p, \partial_3 p)$ points uphill. For a vector field $u = (u_1, u_2, u_3)$, the **divergence** $\nabla \cdot u = \partial_1 u_1 + \partial_2 u_2 + \partial_3 u_3$ measures net outflow; $\nabla \cdot u = 0$ means the flow is **incompressible**. The **Laplacian** $\Delta = \partial_1^2 + \partial_2^2 + \partial_3^2$ is the diffusion operator, and $u \cdot \nabla = u_1 \partial_1 + u_2 \partial_2 + u_3 \partial_3$ differentiates along the flow.
+
+On the 3-torus (a box with opposite faces glued, i.e. periodic functions) there are no boundary terms, so integrating by parts in each variable gives $\int (\partial_i f)\, g = -\int f\, \partial_i g$. Summing over $i$: $\int u \cdot \nabla p = -\int p\, \nabla \cdot u$.`,
+    q: {
+      prompt: r`Is the flow $u(x, y, z) = (y, -x, 0)$ incompressible?`,
+      options: [r`Yes: $\nabla \cdot u = 0$`, r`No: $\nabla \cdot u = y - x$`, r`No: it rotates, so it compresses`],
+      answer: 0,
+      explain: r`$\partial_x(y) + \partial_y(-x) + \partial_z(0) = 0$. A rigid rotation moves fluid around without compressing it. (The divergence differentiates each component in its own variable.)`,
+    },
+  },
+  {
+    id: 'complex',
+    name: 'Complex numbers & complex powers',
+    prereqs: ['logarithm'],
+    summary: 'x^s for complex s; its size depends only on the real part.',
+    primer: r`A complex number is $s = \sigma + it$ with $i^2 = -1$; $\sigma = \operatorname{Re} s$ is its real part. For $x \gt 0$, define $x^s = e^{s \log x} = x^\sigma \, e^{it\log x}$. Since $e^{i\theta} = \cos\theta + i\sin\theta$ lies on the unit circle,
+$$|x^{s}| = x^{\sigma}.$$
+So $x^s$ has size $x^\sigma$ and rotates as $x$ grows, at a speed set by $t$. That is why only the **real part** of a zero of $\zeta$ decides how large an error it causes.`,
+    q: {
+      prompt: r`What is $\big|100^{\frac12 + 14i}\big|$?`,
+      options: [r`$10$`, r`$100$`, r`$\sqrt{100^2 + 14^2}$`],
+      answer: 0,
+      explain: r`$|x^{\sigma + it}| = x^\sigma = 100^{1/2} = 10$. The imaginary part only rotates.`,
+    },
+  },
+  {
+    id: 'curves',
+    name: 'Elliptic curves mod p',
+    prereqs: ['modular'],
+    summary: 'Curves y² = cubic, and counting their points modulo a prime.',
+    primer: r`An **elliptic curve** over $\mathbb{Q}$ is given by an equation such as $y^2 = x^3 + Ax + B$, where the cubic has distinct roots. Reducing mod a prime $p$, count the solutions $(x, y)$ with $x, y \in \{0, \dots, p - 1\}$, plus one extra "point at infinity". Call the total $\#E(\mathbb{F}_p)$ and set
+$$a_p = p + 1 - \#E(\mathbb{F}_p).$$
+Hasse proved $|a_p| \le 2\sqrt p$. The sequence $a_2, a_3, a_5, a_7, \dots$ is a fingerprint of the curve.
+
+Counting is mechanical: for each $x$, compute the right-hand side mod $p$, then count how many $y$ square to it (0, 1 or 2 of them).`,
+    q: {
+      prompt: r`How many points does $y^2 = x^3 - x$ have over $\mathbb{F}_3$, including the point at infinity?`,
+      options: [r`$4$`, r`$3$`, r`$7$`],
+      answer: 0,
+      explain: r`$x^3 - x \equiv 0 \pmod 3$ for $x = 0, 1, 2$, so each $x$ gives only $y = 0$: three points, plus infinity. ($y^2 = 0$ has one solution, not two; forgetting infinity gives 3.)`,
+    },
+  },
+  {
     id: 'powerset',
     name: 'Subsets & the power set',
     prereqs: ['functions'],

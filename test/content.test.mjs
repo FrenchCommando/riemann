@@ -52,14 +52,27 @@ function* texts() {
     yield [c.id, c.summary, c.primer, c.q.prompt, c.q.explain, ...c.q.options];
   }
   for (const t of theorems) {
-    yield [t.id, t.title, t.statement, t.intro, t.takeaway, ...(t.figure?.caption ? [t.figure.caption] : [])];
+    yield [t.id, t.title, t.statement, t.intro, t.takeaway, ...(t.figure?.caption ? [t.figure.caption] : []),
+      ...(t.sources ?? []).map((s) => s.label)];
     for (const s of t.steps) {
       yield [`${t.id}:${s.title}`, s.claim, s.why, s.detail,
         ...(s.check ? [s.check.prompt, s.check.explain, ...s.check.options] : []),
-        ...(s.figure?.caption ? [s.figure.caption] : [])];
+        ...(s.figure?.caption ? [s.figure.caption] : []),
+        ...(s.cited ? [s.cited] : [])];
     }
   }
 }
+
+test('roadmaps: labelled, cite their unproved steps, list https sources', () => {
+  for (const t of theorems) {
+    assert.ok(t.kind === undefined || t.kind === 'roadmap', `${t.id}: kind`);
+    for (const s of t.sources ?? []) assert.match(s.url, /^https:\/\/[^\s"<>]+$/, `${t.id}: source url`);
+    if (t.kind !== 'roadmap') continue;
+    assert.ok(t.sources?.length, `${t.id}: roadmap without sources`);
+    assert.ok(t.steps.some((s) => s.cited), `${t.id}: roadmap with no cited step`);
+    t.steps.forEach((s) => s.cited !== undefined && assert.ok(s.cited.trim(), `${t.id}: empty cited`));
+  }
+});
 
 function* figures() {
   for (const t of theorems) {

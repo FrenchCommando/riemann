@@ -148,3 +148,15 @@ details summary { font: .85rem var(--sans); color: var(--accent); cursor: pointe
 .f-acc { fill: var(--accent); }
 .f-pt { font: 14px var(--sans); fill: var(--muted); }
 .f-v { font-weight: 700; }
+.f-line { fill: none; stroke: var(--ink); stroke-width: 1.5; }
+.f-axis { fill: none; stroke: var(--muted); stroke-width: 1; }
+.f-curve { fill: none; stroke: var(--accent); stroke-width: 2; stroke-linejoin: round; }
+.f-dot { fill: var(--muted); }
+.f-dot2 { fill: var(--accent); }
+.f-strip { fill: color-mix(in srgb, var(--accent) 14%, transparent); }
+.f-start { text-anchor: start; }
+
+/* roadmaps */
+.tag.cited { background: var(--warn-bg); color: var(--warn); }
+.cite { font: .82rem var(--sans); color: var(--muted); margin: -.3rem 0 .6rem; }
+.sources ul { font-size: .9rem; padding-left: 1.2rem; }

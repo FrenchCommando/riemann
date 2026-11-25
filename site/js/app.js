@@ -81,7 +81,7 @@ function viewHome() {
     const status = pr?.done ? '<span class="tag done">done</span>' : pr?.step ? `<span class="tag">step ${pr.step + 1}/${t.steps.length}</span>` : '';
     const builds = (t.requiresTheorems ?? []).filter((x) => !E.isDone(state, x));
     return `<li><a href="#t-${t.id}" class="theorem-row">
-      <span class="t-title">${fi(t.title)} ${status}</span>
+      <span class="t-title">${fi(t.title)} ${t.kind === 'roadmap' ? '<span class="tag">roadmap</span>' : ''} ${status}</span>
       <span class="t-meta">${t.attribution}${builds.length ? ` · builds on ${builds.map((x) => fi(theoremById[x].title)).join(', ')}` : ''}</span>
       <span class="t-ready">readiness ${bar(E.readiness(state, t), 'readiness')}</span>
     </a></li>`;
@@ -147,7 +147,7 @@ function stepHtml(t, s, i, cur) {
   const key = `${t.id}:${i}`;
   const needsAnswer = s.check && ui.answers?.[key] === undefined;
 
-  let body = `<p class="claim">${fi(s.claim)}</p>${figure(s.figure)}`;
+  let body = `<p class="claim">${fi(s.claim)}</p>${s.cited ? `<p class="cite">${fi(s.cited)}</p>` : ''}${figure(s.figure)}`;
   if (!revealed) {
     body += `<div class="tryit"><p>How would you justify this? Think it through, then reveal.</p>
       <button class="btn" data-act="reveal" data-i="${i}">Reveal justification</button></div>`;
@@ -168,6 +168,7 @@ function stepHtml(t, s, i, cur) {
 
   return `<li class="step ${isCur ? 'current' : 'past open'}">
     <div class="step-top"><span class="num">${i + 1}</span><span class="step-title">${s.title}</span>
+      ${s.cited ? '<span class="tag cited">cited</span>' : ''}
       <span class="mode ${mode}" title="${mdesc}">${mname}</span>
       ${!isCur ? `<button class="link" data-act="toggle" data-i="${i}">collapse</button>` : ''}</div>
     ${body}${actions}</li>`;
@@ -196,10 +197,13 @@ function viewTheorem(id) {
     <div class="statement"><span class="eyebrow">Theorem</span>${fb(t.statement)}</div>
     ${figure(t.figure)}
     <p>${fi(t.intro)}</p>
+    ${t.kind === 'roadmap' ? `<p class="note"><strong>Roadmap, not a full proof.</strong> Steps marked <span class="tag cited">cited</span> state a major result with its source instead of proving it; the rest are worked out here.</p>` : ''}
     ${builds.length ? `<p class="note">Builds on ${builds.map((x) => `<a href="#t-${x}">${fi(theoremById[x].title)}</a>`).join(', ')} — you can go ahead, but those will make more sense first.</p>` : ''}
     ${g.length && cur === 0 ? `<p class="note">You'll get refreshers on: ${g.map(chip).join(' ')}</p>` : ''}
     <div class="eyebrow">Proof · ${Math.min(cur, t.steps.length)}/${t.steps.length} steps</div>
-    <ol class="steps">${steps}</ol>${end}</article>`;
+    <ol class="steps">${steps}</ol>${end}
+    ${t.sources ? `<section class="sources"><div class="eyebrow">Sources</div><ul>${t.sources.map((s) =>
+      `<li><a href="${s.url}" target="_blank" rel="noopener noreferrer">${fi(s.label)}</a></li>`).join('')}</ul></section>` : ''}</article>`;
 }
 
 function viewConcepts() {
