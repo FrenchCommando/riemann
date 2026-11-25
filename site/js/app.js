@@ -1,6 +1,6 @@
 import * as E from './engine.js';
 import { inline as fi, block as fb } from './format.js';
-import { concepts, conceptById, theorems, theoremById, fields } from './content/index.js';
+import { concepts, conceptById, theorems, theoremById, fields, goals } from './content/index.js';
 
 // ---------- state ----------
 
@@ -51,8 +51,75 @@ function question(q, key, { onAnswer } = {}) {
 
 // ---------- views ----------
 
+const goalOf = () => (state.goal && theoremById[state.goal]) || null;
+
+// Position of a theorem on the current goal's path, if it is on it.
+function onPath(t) {
+  const goal = goalOf();
+  if (!goal) return null;
+  const path = E.pathTo(theorems, goal.id);
+  const i = path.indexOf(t);
+  return i < 0 ? null : { goal, path, i };
+}
+
+function goalCard(g) {
+  const { done, total } = E.pathProgress(state, theorems, g.id);
+  const current = state.goal === g.id;
+  return `<article class="card goal-card ${current ? 'current' : ''}">
+    <div class="eyebrow">${g.status}</div>
+    <h2><a href="#t-${g.id}">${fi(g.title)}</a></h2>
+    <p class="muted">${fi(g.tagline)}</p>
+    <p class="small">${total - 1} proofs on the way, then the destination ${bar(done / total, 'progress')} ${done}/${total}</p>
+    <div class="row"><button class="btn primary" data-act="goal" data-id="${g.id}">${current ? 'Continue' : done ? 'Resume this journey' : 'Start this journey'}</button></div>
+  </article>`;
+}
+
+function viewGoals() {
+  return `<section class="intro">
+      <h1>Build up to a great theorem</h1>
+      <p class="muted">Pick a destination. Each is reached through a sequence of complete proofs, each one using the ones before it, and every step adapts to what you already know.</p>
+    </section>
+    <div class="goals">${goals.map(goalCard).join('')}</div>`;
+}
+
+function viewJourney(goal) {
+  const path = E.pathTo(theorems, goal.id);
+  const next = E.recommend(state, theorems, goal.id);
+  const { done, total } = E.pathProgress(state, theorems, goal.id);
+  const g = next ? E.gaps(state, concepts, next) : [];
+
+  const node = (t, i) => {
+    const pr = state.progress[t.id];
+    const isGoal = t === goal;
+    const cls = E.isDone(state, t.id) ? 'done' : t === next ? 'next' : '';
+    const waiting = (t.requiresTheorems ?? []).filter((x) => !E.isDone(state, x));
+    const status = E.isDone(state, t.id) ? '<span class="tag done">done</span>'
+      : pr?.step ? `<span class="tag">step ${pr.step + 1}/${t.steps.length}</span>`
+      : t === next ? '<span class="tag next">next</span>' : '';
+    return `<li class="${cls} ${isGoal ? 'goal' : ''}">
+      <span class="jnode">${isGoal ? '∎' : i + 1}</span>
+      <a href="#t-${t.id}" class="theorem-row">
+        <span class="t-title">${fi(t.title)} ${isGoal ? '<span class="tag">destination</span>' : ''} ${status}</span>
+        <span class="t-meta">${t.attribution}</span>
+        ${!E.isDone(state, t.id) && waiting.length && t !== next ? `<span class="t-meta">after ${waiting.map((x) => fi(theoremById[x].title)).join(', ')}</span>` : ''}
+      </a></li>`;
+  };
+
+  return `<section class="journey-head">
+      <div class="eyebrow">Your destination · ${goal.status}</div>
+      <h1>${fi(goal.title)}</h1>
+      <p class="muted">${fi(goal.tagline)}</p>
+      <p class="small">${bar(done / total, 'journey progress')} ${done} of ${total} done</p>
+      <div class="row">
+        ${next ? `<a class="btn primary" href="#t-${next.id}"><span>${state.progress[next.id]?.step ? 'Continue' : 'Next'}: ${fi(next.title)}</span></a>` : '<span class="tag done">journey complete</span>'}
+        <button class="btn ghost" data-act="pick-goal">Change destination</button>
+      </div>
+      ${g.length ? `<p class="small">Next proof will guide you through: ${g.map(chip).join(' ')}</p>` : ''}
+    </section>
+    <ol class="journey">${path.map(node).join('')}</ol>`;
+}
+
 function viewHome() {
-  const rec = E.recommend(state, theorems);
   const calib = state.diagnosed ? '' : `
     <section class="card hero">
       <h2>Start by calibrating</h2>
@@ -61,20 +128,8 @@ function viewHome() {
       <button class="btn ghost" data-act="skip-diag">Skip — start from scratch</button></div>
     </section>`;
 
-  let recHtml = '';
-  if (rec) {
-    const g = E.gaps(state, concepts, rec);
-    recHtml = `
-      <section class="card rec">
-        <div class="eyebrow">Recommended next</div>
-        <h2><a href="#t-${rec.id}">${fi(rec.title)}</a></h2>
-        <p class="muted">${fi(rec.statement)}</p>
-        ${g.length ? `<p class="small">Will be guided through: ${g.map(chip).join(' ')}</p>` : ''}
-        <a class="btn primary" href="#t-${rec.id}">${state.progress[rec.id]?.step ? 'Continue' : 'Start'}</a>
-      </section>`;
-  } else {
-    recHtml = `<section class="card rec"><h2>All proofs complete.</h2><p>Switch to Challenge mode in Settings and run them again without peeking.</p></section>`;
-  }
+  const goal = goalOf();
+  const main = goal && !ui.pick ? viewJourney(goal) : viewGoals();
 
   const row = (t) => {
     const pr = state.progress[t.id];
@@ -92,7 +147,8 @@ function viewHome() {
     return `<section><h3>${f} <span class="small muted">${done}/${ts.length}</span></h3><ul class="theorems">${ts.map(row).join('')}</ul></section>`;
   }).join('');
 
-  return `${calib}${recHtml}${groups}
+  return `${main}${calib}
+    <details class="all-proofs"><summary>All ${theorems.length} proofs, by field</summary>${groups}</details>
     <section><h3>Your concept map <a class="small" href="#concepts">all concepts →</a></h3>
       <div class="chips">${E.topoOrder(concepts).map(chip).join(' ')}</div>
       <p class="small muted">Green = solid, amber = shaky, grey = new. Tap one to read its primer or practise.</p>
@@ -183,15 +239,24 @@ function viewTheorem(id) {
   const builds = (t.requiresTheorems ?? []).filter((x) => !E.isDone(state, x));
 
   const steps = t.steps.slice(0, Math.min(cur + 1, t.steps.length)).map((s, i) => stepHtml(t, s, i, cur)).join('');
+  const where = onPath(t);
+  const after = where && where.path.slice(where.i + 1).find((x) => !E.isDone(state, x.id));
   const end = cur >= t.steps.length ? `
-    <section class="card done-card"><div class="eyebrow">∎ Proof complete</div>
+    <section class="card done-card"><div class="eyebrow">∎ ${t === where?.goal ? 'Destination reached' : 'Proof complete'}</div>
       <p><strong>Takeaway.</strong> ${fi(t.takeaway)}</p>
-      <div class="row">${pr.done ? '' : `<button class="btn primary" data-act="complete">Mark complete</button>`}
+      ${after ? `<p class="small">Next on the way to ${fi(where.goal.title)}: <a href="#t-${after.id}">${fi(after.title)}</a></p>` : ''}
+      <div class="row">${pr.done ? (after ? `<a class="btn primary" href="#t-${after.id}">Next proof</a>` : '')
+        : `<button class="btn primary" data-act="complete">${after ? 'Mark complete, go to the next proof' : 'Mark complete'}</button>`}
       <button class="btn ghost" data-act="restart">Walk through again</button>
-      <a class="btn ghost" href="#home">Back to path</a></div></section>` : '';
+      <a class="btn ghost" href="#home">${where ? 'Back to the journey' : 'Home'}</a></div></section>` : '';
+
+  const banner = where
+    ? `<p class="small journey-banner">${t === where.goal ? 'Destination' : `Proof ${where.i + 1} of ${where.path.length - 1}`} on the way to <a href="#home">${fi(where.goal.title)}</a></p>`
+    : t.kind === 'roadmap' ? `<p class="small journey-banner"><button class="link inline" data-act="goal" data-id="${t.id}">Make this your destination</button> to be walked through the ${E.pathTo(theorems, t.id).length - 1} proofs it builds on.</p>` : '';
 
   return `<article class="theorem">
-    <a class="small" href="#home">← Path</a>
+    <a class="small" href="#home">← ${goalOf() ? 'Journey' : 'Home'}</a>
+    ${banner}
     <h1>${fi(t.title)}</h1>
     <div class="muted small">${t.attribution}</div>
     <div class="statement"><span class="eyebrow">Theorem</span>${fb(t.statement)}</div>
@@ -326,7 +391,15 @@ app.addEventListener('click', (ev) => {
       pr.step += 1; save();
       return rerender('.step.current, .done-card');
     }
-    case 'complete': E.completeTheorem(state, t); save(); location.hash = '#home'; return;
+    case 'complete': {
+      E.completeTheorem(state, t); save();
+      const where = onPath(t);
+      const after = where && where.path.slice(where.i + 1).find((x) => !E.isDone(state, x.id));
+      location.hash = after ? `#t-${after.id}` : '#home';
+      return;
+    }
+    case 'goal': state.goal = el.dataset.id; save(); ui = {}; location.hash = '#home'; return rerender();
+    case 'pick-goal': ui.pick = true; break;
     case 'restart': state.progress[t.id].step = 0; ui = { view: ui.view, id: ui.id, review: true }; save(); break;
     case 'retry': delete ui.answers.practice; break;
     case 'export': {

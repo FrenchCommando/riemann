@@ -27,6 +27,8 @@ export default {
   },
   prereqs: ['vectorcalc', 'calculus'],
   requiresTheorems: ['energy'],
+  tagline: r`Can a smooth fluid flow develop a singularity? Energy, scaling and the search for blow-up.`,
+  status: 'Forced blow-up claimed Sep 2026',
   intro: r`The energy proof showed the one global bound we have and why scaling defeats it. This roadmap covers what has been proved since Leray, why the problem resisted, the 20-year search for a blow-up, and the 2026 claim that one has been found, with what is and isn't settled.`,
   steps: [
     {

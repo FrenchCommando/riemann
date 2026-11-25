@@ -31,6 +31,8 @@ export default {
   statement: r`For every $n \ge 3$ there are no positive integers $x, y, z$ with $x^n + y^n = z^n$.`,
   prereqs: ['curves', 'modular', 'primes'],
   requiresTheorems: ['flt4'],
+  tagline: r`$x^n + y^n = z^n$ has no solutions for $n \ge 3$: from Pythagorean triples to Wiles.`,
+  status: 'Proved, 1995',
   intro: r`The full proof runs to hundreds of pages of modern algebraic geometry, so this is a map rather than a walkthrough: each step either computes something you can check by hand or states a major theorem with its source. The route: turn a hypothetical solution into an elliptic curve so strange that it can't be "modular", then prove that every such curve is modular.`,
   steps: [
     {

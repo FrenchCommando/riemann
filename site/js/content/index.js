@@ -33,4 +33,7 @@ export const theorems = [
   flt, langlands, rh, navierstokes,
 ];
 export const theoremById = Object.fromEntries(theorems.map((t) => [t.id, t]));
+// Destinations: the roadmaps. Every other proof is a building block on the way
+// to one of them, or a detour.
+export const goals = theorems.filter((t) => t.kind === 'roadmap');
 export const fields = [...new Set(theorems.map((t) => t.field))];

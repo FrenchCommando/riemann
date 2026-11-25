@@ -68,7 +68,9 @@ export default {
     caption: r`The Langlands correspondence as a dictionary. Each entry on the left (how a polynomial or curve behaves mod every prime $p$) should have a partner on the right (a modular or automorphic form) with the same $L$-function.`,
   },
   prereqs: ['qr', 'curves', 'modular'],
-  requiresTheorems: ['flt'],
+  requiresTheorems: ['lagrange', 'primes3mod4', 'flt'],
+  tagline: r`One dictionary between counting solutions mod $p$ and symmetric functions. Fermat's Last Theorem was one entry.`,
+  status: 'Largely open; key cases proved',
   intro: r`Wiles's modularity theorem matched elliptic curves with modular forms. That turned out to be one entry in a much larger dictionary, conjectured by Langlands, which ties together reciprocity laws, $L$-functions and symmetry. This roadmap starts with examples you can check by hand, from Gauss to a cubic whose roots are predicted by a $q$-series, then states the conjectures and what is proved.`,
   steps: [
     {

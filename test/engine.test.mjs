@@ -103,6 +103,29 @@ test('never recommends a proof before the proofs it builds on (when avoidable)',
   assert.equal(done.size, theorems.length);
 });
 
+test('goal paths: end at the goal, closed under prerequisites, prerequisites first', () => {
+  for (const g of theorems.filter((t) => t.kind === 'roadmap')) {
+    const path = E.pathTo(theorems, g.id);
+    assert.equal(path.at(-1), g, `${g.id}: goal last`);
+    assert.ok(path.length >= 3, `${g.id}: path of ${path.length}`);
+    const ids = path.map((t) => t.id);
+    path.forEach((t, i) => (t.requiresTheorems ?? []).forEach((x) =>
+      assert.ok(ids.indexOf(x) > -1 && ids.indexOf(x) < i, `${g.id}: ${t.id} needs ${x} earlier`)));
+  }
+});
+
+test('with a goal, recommendations walk its path in order and stop at the end', () => {
+  for (const g of theorems.filter((t) => t.kind === 'roadmap')) {
+    const s = fresh();
+    const path = E.pathTo(theorems, g.id);
+    const walked = [];
+    let t;
+    while ((t = E.recommend(s, theorems, g.id))) { walked.push(t.id); E.completeTheorem(s, t); }
+    assert.deepEqual(walked, path.map((x) => x.id), g.id);
+    assert.deepEqual(E.pathProgress(s, theorems, g.id), { done: path.length, total: path.length });
+  }
+});
+
 test('completing all theorems → no recommendation', () => {
   const s = fresh();
   theorems.forEach((t) => E.completeTheorem(s, t));

@@ -25,7 +25,7 @@ export default {
     caption: r`Infinite descent: every solution would produce a strictly smaller one. Positive integers can't decrease forever, so there is no first solution.`,
   },
   prereqs: ['induction', 'contradiction', 'parity', 'gcd'],
-  requiresTheorems: ['triples'],
+  requiresTheorems: ['sqrt2', 'triples'],
   intro: r`Fermat wrote in a margin that $x^n + y^n = z^n$ has no solutions for $n \ge 3$ and that the margin was too small for his proof. For $n = 4$ he did leave a proof, and it is a gem: assume a smallest solution and build a smaller one. It also cuts the full problem down to odd primes, which is where Wiles picked it up 350 years later.`,
   steps: [
     {

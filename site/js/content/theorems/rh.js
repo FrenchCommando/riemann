@@ -33,6 +33,8 @@ export default {
   },
   prereqs: ['complex', 'series', 'logarithm', 'primes'],
   requiresTheorems: ['chebyshev', 'vonmangoldt'],
+  tagline: r`How regular are the primes? From Euclid to the zeros of $\zeta$.`,
+  status: 'Machine-checked proof announced Nov 2026',
   intro: r`This is the destination the number-theory track has been heading for: Euclid, Euler's product, Chebyshev's bounds and von Mangoldt's formula. The analytic steps below are cited rather than proved here (they need complex analysis). The last step reports the proof announced in November 2026, what has been checked and what has not.`,
   steps: [
     {

@@ -28,6 +28,7 @@ But the energy is **supercritical**: under the equation's scaling symmetry it sh
     caption: r`The scaling $u \mapsto \lambda u(\lambda x, \lambda^2 t)$ (here $\lambda = 3$) maps solutions to solutions: speeds grow by $\lambda$ while the region shrinks by $\lambda$ in each of three directions, so the energy changes by $\lambda^2 \cdot \lambda^{-3} = 1/\lambda$.`,
   },
   prereqs: ['calculus', 'vectorcalc'],
+  requiresTheorems: ['pythagoras'],
   intro: r`The Navier–Stokes equations describe a viscous, incompressible fluid. The Millennium problem asks whether smooth solutions in 3D stay smooth forever. This proof gives the one bound everyone has, the energy identity, and then shows by a scaling argument why it falls short: that gap is the whole difficulty.`,
   steps: [
     {

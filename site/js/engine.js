@@ -19,7 +19,7 @@ export const STORAGE_KEY = 'riemann.v1';
 const clamp = (x) => Math.min(0.99, Math.max(0.01, x));
 
 export function initialState() {
-  return { v: 1, mastery: {}, progress: {}, mode: 'auto', diagnosed: false };
+  return { v: 1, mastery: {}, progress: {}, mode: 'auto', diagnosed: false, goal: null };
 }
 
 export function p(state, c) {
@@ -192,13 +192,36 @@ export function gaps(state, concepts, theorem) {
   return topoOrder(concepts).filter((id) => want.has(id));
 }
 
-export function recommend(state, theorems) {
-  const open = theorems.filter((t) => !isDone(state, t.id));
+// ---------- goals ----------
+// A goal is a theorem (in practice a roadmap). Its path is the goal plus every
+// theorem it builds on, transitively, in catalogue order, which is topological
+// because a theorem may only require theorems listed before it.
+
+export function pathTo(theorems, goalId) {
+  const byId = Object.fromEntries(theorems.map((t) => [t.id, t]));
+  const need = new Set([goalId]);
+  const walk = (id) => (byId[id].requiresTheorems ?? []).forEach((x) => {
+    if (!need.has(x)) { need.add(x); walk(x); }
+  });
+  walk(goalId);
+  return theorems.filter((t) => need.has(t.id));
+}
+
+export function pathProgress(state, theorems, goalId) {
+  const path = pathTo(theorems, goalId);
+  return { done: path.filter((t) => isDone(state, t.id)).length, total: path.length };
+}
+
+// Next theorem to study. Proofs whose prerequisite proofs are done come first.
+// With a goal, stay on its path and walk it in order; without one, pick the
+// most ready proof in the whole catalogue.
+export function recommend(state, theorems, goalId = null) {
+  const pool = goalId ? pathTo(theorems, goalId) : theorems;
+  const open = pool.filter((t) => !isDone(state, t.id));
   if (!open.length) return null;
-  // Proofs whose prerequisite proofs are done come first; then readiness.
   const unlocked = (t) => ((t.requiresTheorems ?? []).every((x) => isDone(state, x)) ? 1 : 0);
   return open
-    .map((t, i) => ({ t, u: unlocked(t), r: readiness(state, t), i }))
+    .map((t, i) => ({ t, u: unlocked(t), r: goalId ? 0 : readiness(state, t), i }))
     .sort((a, b) => b.u - a.u || b.r - a.r || a.i - b.i)[0].t;
 }
 

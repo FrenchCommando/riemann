@@ -1,8 +1,19 @@
 # Riemann
 
-Adaptive, step-by-step walkthroughs of famous proofs. Static site: vanilla JS modules, vendored KaTeX, no build step, no backend, no tracking. Progress lives in the browser's localStorage (export/import in Settings).
+Build up to a great theorem, one complete proof at a time. You pick a destination; the app lays out the proofs it is built from, in order, and adapts every step to what you already know. Static site: vanilla JS modules, vendored KaTeX, no build step, no backend, no tracking. Progress lives in the browser's localStorage (export/import in Settings).
 
-**17 proofs and 4 roadmaps**
+**Destinations** (each reached through its own path of proofs):
+
+| Destination | Path |
+|---|---|
+| Fermat's Last Theorem | Pythagoras → √2 → Fundamental Theorem of Arithmetic → all Pythagorean triples → Fermat for n = 4 → Wiles |
+| The Langlands program | the Fermat path, plus primes, Fermat's Little Theorem, Lagrange, primes ≡ 3 mod 4 |
+| The Riemann Hypothesis | Euclid → FTA → Euler's product → Chebyshev → von Mangoldt → RH |
+| Navier–Stokes | Pythagoras → energy identity and scaling → the blow-up question |
+
+A path is the destination plus everything it builds on (`requiresTheorems`, transitively), in catalogue order. Proofs on no path (Cantor, halting, e) stay available under "All proofs".
+
+**17 proofs and 4 destination roadmaps**
 - *Geometry:* Pythagorean theorem (rearrangement, similar triangles, vectors)
 - *Number theory:* √2 irrational · infinitely many primes · Fundamental Theorem of Arithmetic · Fermat's Little Theorem · infinitely many primes ≡ 3 (mod 4) · Euler's ∑1/p diverges · Chebyshev's bound π(x) ≳ x/log x · all Pythagorean triples · Fermat for n = 4 (infinite descent) · −ζ′/ζ = ∑Λ(n)n⁻ˢ
 - *Sets & logic:* Cantor's diagonal (ℝ uncountable) · Cantor's theorem (|P(S)| > |S|) · halting problem
@@ -10,12 +21,7 @@ Adaptive, step-by-step walkthroughs of famous proofs. Static site: vanilla JS mo
 - *Algebra:* Lagrange's theorem (→ Euler's theorem, a second proof of Fermat)
 - *Frontiers (roadmaps):* Fermat's Last Theorem · the Langlands program · the Riemann Hypothesis · Navier–Stokes existence and smoothness
 
-Three tracks lead to the frontier:
-- **Fermat:** Pythagoras → triples → n = 4 by descent → Wiles (Frey curve, Ribet, modularity) → Langlands (reciprocity, x³ − x − 1 vs a weight-1 form, Sato–Tate).
-- **Riemann:** Euclid → Euler's product → Chebyshev → von Mangoldt → ζ(s), the Prime Number Theorem, RH.
-- **Navier–Stokes:** energy identity → scaling (why energy is supercritical) → the search for blow-up.
-
-A **roadmap** (`kind: 'roadmap'`) maps a proof too long to walk through: it works out what fits and marks the rest `cited`, with a source line, and lists `sources` at the end. The RH and Navier–Stokes roadmaps end with the status of the 2026 claims (as of 24 Nov 2026), taken from the linked reporting; update them as the story moves.
+A **roadmap** (`kind: 'roadmap'`, with a `tagline` and `status` for its destination card) maps a proof too long to walk through: it works out what fits and marks the rest `cited`, with a source line, and lists `sources` at the end. The RH and Navier–Stokes roadmaps end with the status of the 2026 claims (as of 24 Nov 2026), taken from the linked reporting; update them as the story moves.
 
 ## How it adapts
 
@@ -28,7 +34,7 @@ A **roadmap** (`kind: 'roadmap'`) maps a proof too long to walk through: it work
    - **Guided** (p < 0.4): full walkthrough + inline refreshers for the weak concepts.
 
    A wrong check answer or "I'm lost" drops that step to Guided immediately and lowers the concepts.
-5. **Path** — recommends proofs whose prerequisite proofs are done first, then the one with the highest readiness (concept mastery + completed prerequisite theorems) and lists the gaps you'll get refreshers on.
+5. **Journey** — with a destination chosen, the next proof is the first one on its path whose prerequisite proofs are done, and finishing a proof takes you to the next. Without one, it recommends the most ready proof in the catalogue (concept mastery + completed prerequisite proofs). Either way it lists the concepts you'll get refreshers on.
 
 ## Layout
 
