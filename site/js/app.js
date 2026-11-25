@@ -157,7 +157,10 @@ function viewHome() {
 
 function viewDiagnostic() {
   ui.diag ??= E.newDiagnostic();
-  const id = ui.current ?? E.nextDiagnostic(concepts, ui.diag);
+  // With a destination, ask only about the concepts on its path.
+  const goal = goalOf();
+  ui.only ??= goal ? E.conceptsFor(concepts, E.pathTo(theorems, goal.id)) : new Set(concepts.map((c) => c.id));
+  const id = ui.current ?? E.nextDiagnostic(concepts, ui.diag, ui.only);
   if (!id) {
     if (!ui.diag.defaulted) E.finishDiagnostic(state, concepts, ui.diag);
     save();
@@ -170,7 +173,8 @@ function viewDiagnostic() {
   ui.current = id;
   const c = conceptById[id];
   const answered = ui.answers?.diag !== undefined;
-  const remaining = Math.min(concepts.length - ui.diag.asked.length - ui.diag.inferred.length, E.MAX_DIAG - ui.diag.asked.length);
+  const settled = new Set([...ui.diag.asked, ...ui.diag.inferred]);
+  const remaining = Math.min([...ui.only].filter((x) => !settled.has(x)).length, E.MAX_DIAG - ui.diag.asked.length);
   return `<section class="card">
     <div class="eyebrow">Diagnostic · question ${ui.diag.asked.length + 1} · at most ${remaining - 1} more</div>
     <h2>${c.name}</h2>

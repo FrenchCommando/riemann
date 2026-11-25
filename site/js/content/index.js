@@ -17,7 +17,10 @@ import chebyshev from './theorems/chebyshev.js';
 import triples from './theorems/triples.js';
 import flt4 from './theorems/flt4.js';
 import vonmangoldt from './theorems/vonmangoldt.js';
+import heat from './theorems/heat.js';
 import energy from './theorems/energy.js';
+import vorticity2d from './theorems/vorticity2d.js';
+import stretching3d from './theorems/stretching3d.js';
 import flt from './theorems/flt.js';
 import langlands from './theorems/langlands.js';
 import rh from './theorems/rh.js';
@@ -29,7 +32,7 @@ export { concepts, conceptById } from './concepts.js';
 export const theorems = [
   pythagoras, sqrt2, euclid, fta, cantor, cantorpower, halting,
   eirrational, fermat, lagrange, primes3mod4, euler, chebyshev,
-  triples, flt4, vonmangoldt, energy,
+  triples, flt4, vonmangoldt, heat, energy, vorticity2d, stretching3d,
   flt, langlands, rh, navierstokes,
 ];
 export const theoremById = Object.fromEntries(theorems.map((t) => [t.id, t]));

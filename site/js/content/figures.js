@@ -27,6 +27,14 @@ export const grid = (rows, x0, y0, s, highlight = () => '', textCls = () => '') 
     return (h ? rect(x, y, s, s, h) : '') + rect(x, y, s, s, 'f-cell') + (v === '' ? '' : text(x + s / 2, y + s / 2, v, textCls(i, j)));
   })).join('');
 
+// Arrow from (x1, y1) to (x2, y2) with a drawn head (no <marker>, so no ids to clash).
+export const arrowLine = (x1, y1, x2, y2, cls = 'f-vec', head = 6) => {
+  const a = Math.atan2(y2 - y1, x2 - x1), s = 0.45;
+  const p = (t) => `${(x2 - head * Math.cos(a + t)).toFixed(1)},${(y2 - head * Math.sin(a + t)).toFixed(1)}`;
+  return path(`M${x1.toFixed(1)} ${y1.toFixed(1)}L${x2.toFixed(1)} ${y2.toFixed(1)}`, cls) +
+    poly(`${x2.toFixed(1)},${y2.toFixed(1)} ${p(s)} ${p(-s)}`, `${cls}-head`);
+};
+
 // x² as SVG text.
 export const sq = (x) => `${x}<tspan dy="-0.45em" font-size="70%">2</tspan>`;
 

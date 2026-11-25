@@ -155,6 +155,10 @@ details summary { font: .85rem var(--sans); color: var(--accent); cursor: pointe
 .f-dot2 { fill: var(--accent); }
 .f-strip { fill: color-mix(in srgb, var(--accent) 14%, transparent); }
 .f-start { text-anchor: start; }
+.f-vec-head { fill: var(--ink); }
+.f-curve-head { fill: var(--accent); }
+.f-thin { fill: none; stroke: var(--muted); stroke-width: 1.2; }
+.f-thin-head { fill: var(--muted); }
 .f-cell { fill: none; stroke: var(--rule); stroke-width: 1; }
 .f-hl { fill: color-mix(in srgb, var(--accent) 22%, transparent); }
 .f-muted { fill: var(--muted); }

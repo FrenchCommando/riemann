@@ -26,10 +26,10 @@ export default {
     caption: r`Clay's four alternatives; any one of them solves the problem. The September 2026 claim is a blow-up result, so it targets C and D, which allow a smooth external force.`,
   },
   prereqs: ['vectorcalc', 'calculus'],
-  requiresTheorems: ['energy'],
+  requiresTheorems: ['energy', 'stretching3d'],
   tagline: r`Can a smooth fluid flow develop a singularity? Energy, scaling and the search for blow-up.`,
   status: 'Forced blow-up claimed Sep 2026',
-  intro: r`The energy proof showed the one global bound we have and why scaling defeats it. This roadmap covers what has been proved since Leray, why the problem resisted, the 20-year search for a blow-up, and the 2026 claim that one has been found, with what is and isn't settled.`,
+  intro: r`The proofs on the way here showed what viscosity does alone (the heat equation), the one global bound in 3D and why scaling defeats it (energy), why 2D flows stay smooth (vorticity can't grow), and what 3D adds (vortex stretching, and that any blow-up is a vorticity blow-up). This roadmap covers what has been proved since Leray, why the problem resisted, the 20-year search for a blow-up, and the 2026 claim that one has been found, with what is and isn't settled.`,
   steps: [
     {
       title: 'The question, precisely',

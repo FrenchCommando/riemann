@@ -108,9 +108,11 @@ export function newDiagnostic() {
 // novices shallow ones. Ties go to prerequisite order.
 export const MAX_DIAG = 12;
 
-export function nextDiagnostic(concepts, session) {
+// `only`: optional Set of concept ids to ask about (the chosen goal's concepts).
+// Inference still runs over the whole graph.
+export function nextDiagnostic(concepts, session, only = null) {
   const done = new Set([...session.asked, ...session.inferred]);
-  const open = topoOrder(concepts).filter((id) => !done.has(id));
+  const open = topoOrder(concepts).filter((id) => !done.has(id) && (!only || only.has(id)));
   if (!open.length || session.asked.length >= MAX_DIAG) return null;
   const h = ((session.hits ?? 0) + 1) / (session.asked.length + 2);
   let best = null, bestScore = -1;
@@ -205,6 +207,14 @@ export function pathTo(theorems, goalId) {
   });
   walk(goalId);
   return theorems.filter((t) => need.has(t.id));
+}
+
+// Every concept the path's proofs use (as prerequisites or in a step), with
+// all their ancestors in the concept graph.
+export function conceptsFor(concepts, path) {
+  const ids = new Set(path.flatMap((t) => [...t.prereqs, ...t.steps.flatMap((s) => s.concepts)]));
+  for (const id of [...ids]) ancestors(concepts, id).forEach((a) => ids.add(a));
+  return ids;
 }
 
 export function pathProgress(state, theorems, goalId) {

@@ -344,6 +344,36 @@ On the 3-torus (a box with opposite faces glued, i.e. periodic functions) there 
     },
   },
   {
+    id: 'fourier',
+    name: 'Fourier series',
+    prereqs: ['complex', 'calculus'],
+    summary: 'A periodic function as a sum of waves e^{ikx}.',
+    primer: r`A $2\pi$-periodic function can be written as a sum of waves, $f(x) = \sum_{k \in \mathbb Z} c_k\, e^{ikx}$, with **Fourier coefficients** $c_k = \frac{1}{2\pi}\int_0^{2\pi} f(x)\,e^{-ikx}\,dx$. The waves are orthogonal: $\int_0^{2\pi} e^{ikx}e^{-ijx}dx$ is $2\pi$ if $j = k$ and $0$ otherwise, which is why that formula picks out $c_k$.
+
+Two rules do most of the work. **Derivatives multiply**: $f'$ has coefficients $ik\,c_k$, so smoothness means the $c_k$ decay fast. **Parseval**: $\frac{1}{2\pi}\int_0^{2\pi}|f|^2 = \sum_k |c_k|^2$, so energy can be counted wave by wave.`,
+    q: {
+      prompt: r`What is the coefficient $c_1$ of $f(x) = 3 + 2\cos x$?`,
+      options: [r`$1$`, r`$2$`, r`$3$`],
+      answer: 0,
+      explain: r`$2\cos x = e^{ix} + e^{-ix}$, so $c_1 = c_{-1} = 1$ (and $c_0 = 3$). The cosine's amplitude is split between the waves $k = 1$ and $k = -1$.`,
+    },
+  },
+  {
+    id: 'vorticity',
+    name: 'Curl and vorticity',
+    prereqs: ['vectorcalc'],
+    summary: 'How fast a flow spins locally.',
+    primer: r`The **vorticity** of a flow is its curl, $\omega = \nabla \times u$: twice the local rate of rotation. In 3D it is a vector, $\omega = (\partial_2 u_3 - \partial_3 u_2,\ \partial_3 u_1 - \partial_1 u_3,\ \partial_1 u_2 - \partial_2 u_1)$. In 2D, with $u = (u_1, u_2)$, only the last component survives, so vorticity is a number at each point: $\omega = \partial_1 u_2 - \partial_2 u_1$.
+
+The curl kills gradients: $\nabla \times \nabla p = 0$, since mixed partials commute. That is why taking the curl of the fluid equations removes the pressure.`,
+    q: {
+      prompt: r`What is the vorticity of the rotating flow $u = (-y, x)$ in the plane?`,
+      options: [r`$2$`, r`$0$`, r`$1$`],
+      answer: 0,
+      explain: r`$\omega = \partial_x(x) - \partial_y(-y) = 1 + 1 = 2$: a rigid rotation at angular speed $1$ has vorticity $2$, twice the rotation rate.`,
+    },
+  },
+  {
     id: 'complex',
     name: 'Complex numbers & complex powers',
     prereqs: ['logarithm'],

@@ -28,7 +28,7 @@ But the energy is **supercritical**: under the equation's scaling symmetry it sh
     caption: r`The scaling $u \mapsto \lambda u(\lambda x, \lambda^2 t)$ (here $\lambda = 3$) maps solutions to solutions: speeds grow by $\lambda$ while the region shrinks by $\lambda$ in each of three directions, so the energy changes by $\lambda^2 \cdot \lambda^{-3} = 1/\lambda$.`,
   },
   prereqs: ['calculus', 'vectorcalc'],
-  requiresTheorems: ['pythagoras'],
+  requiresTheorems: ['pythagoras', 'heat'],
   intro: r`The Navier–Stokes equations describe a viscous, incompressible fluid. The Millennium problem asks whether smooth solutions in 3D stay smooth forever. This proof gives the one bound everyone has, the energy identity, and then shows by a scaling argument why it falls short: that gap is the whole difficulty.`,
   steps: [
     {
@@ -110,7 +110,7 @@ The equation for $u_\lambda$ is the equation for $u$ multiplied by $\lambda^3$. 
       why: r`Substitute $y = \lambda x$, so $dx = \lambda^{-3}dy$: the amplitude contributes $\lambda^2$ and the volume $\lambda^{-3}$.`,
       detail: r`$\int |\lambda u(\lambda x)|^2\,dx = \lambda^2 \int |u(y)|^2\,\lambda^{-3}\,dy = \lambda^{-1}\int|u(y)|^2\,dy$.
 
-Think of a hypothetical blow-up: a flow pattern that repeatedly copies itself at smaller and smaller scales $\lambda \to \infty$, faster each time. Its energy goes **down** at each stage, so the energy bound, the only global bound we have, cannot rule it out. In the jargon, the energy is **supercritical** for 3D Navier–Stokes. (In 2D the same computation gives $\lambda^2\cdot\lambda^{-2} = 1$: energy is critical, and 2D solutions are known to stay smooth.)
+Think of a hypothetical blow-up: a flow pattern that repeatedly copies itself at smaller and smaller scales $\lambda \to \infty$, faster each time. Its energy goes **down** at each stage, so the energy bound, the only global bound we have, cannot rule it out. In the jargon, the energy is **supercritical** for 3D Navier–Stokes. (In 2D the same computation gives $\lambda^2\cdot\lambda^{-2} = 1$: energy is critical, and 2D solutions stay smooth. The next stop on this path proves the extra bound that makes that work.)
 
 Every route to the Millennium problem either finds a quantity that beats this scaling, or builds a solution that exploits it. The roadmap entry covers what has been tried, and the 2026 claim.`,
       concepts: ['calculus'],

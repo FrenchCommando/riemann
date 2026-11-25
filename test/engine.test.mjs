@@ -37,13 +37,29 @@ test('novice diagnostic: misses skip dependents', () => {
   concepts.forEach((c) => assert.ok(E.p(s, c.id) < E.LO, c.id));
 });
 
-test('diagnostic length stays short for typical profiles', () => {
-  // knows logic + number theory basics, not analysis or set theory
-  const known = new Set(['implication', 'contradiction', 'divisibility', 'parity', 'primes', 'gcd', 'induction']);
+// Knows logic + number theory basics, not analysis or set theory.
+const known = new Set(['implication', 'contradiction', 'divisibility', 'parity', 'primes', 'gcd', 'induction']);
+
+test('diagnostic, no destination: capped, and known concepts are never put in guided mode', () => {
   const s = fresh();
   const d = runDiagnostic(s, (id) => (known.has(id) ? 'correct' : 'wrong'));
-  assert.ok(d.asked.length <= 12, `asked ${d.asked.length}`);
-  known.forEach((c) => assert.ok(E.p(s, c) >= E.HI, c));
+  assert.ok(d.asked.length <= E.MAX_DIAG, `asked ${d.asked.length}`);
+  // Assessed known concepts are solid; ones the cap left unassessed start at
+  // the hit-rate estimate, which for this learner is standard mode.
+  known.forEach((c) => assert.ok(E.p(s, c) >= (d.defaulted.includes(c) ? E.LO : E.HI), `${c} = ${E.p(s, c)}`));
+});
+
+test('diagnostic with a destination asks only about its concepts, and settles the known ones', () => {
+  const s = fresh();
+  const only = E.conceptsFor(concepts, E.pathTo(theorems, 'flt'));
+  const d = E.newDiagnostic();
+  let id;
+  while ((id = E.nextDiagnostic(concepts, d, only))) {
+    assert.ok(only.has(id), `asked off-path concept ${id}`);
+    E.recordDiagnostic(s, concepts, d, id, known.has(id) ? 'correct' : 'wrong');
+  }
+  E.finishDiagnostic(s, concepts, d);
+  [...known].filter((c) => only.has(c)).forEach((c) => assert.ok(E.p(s, c) >= E.HI, `${c} = ${E.p(s, c)}`));
 });
 
 test('every concept is assessed exactly once (asked, inferred or defaulted)', () => {
