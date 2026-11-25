@@ -43,6 +43,7 @@ site/                 everything served
   js/engine.js        adaptive model (pure, no DOM)
   js/format.js        $math$ / **md** → HTML, KaTeX rendered here
   js/app.js           hash router + views
+  js/map.js           the home-page map: proofs laid out by dependency, flags for destinations
   js/content/         concepts + one file per theorem
   vendor/katex/       pinned KaTeX 0.16.47 (ES module + CSS + woff2 fonts)
 test/                 node --test: content integrity, every formula through

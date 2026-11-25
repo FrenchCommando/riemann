@@ -36,6 +36,16 @@ export const theorems = [
   flt, langlands, rh, navierstokes,
 ];
 export const theoremById = Object.fromEntries(theorems.map((t) => [t.id, t]));
+// Short names for the map on the home page (plain text, no math).
+export const labels = {
+  pythagoras: 'Pythagoras', sqrt2: '√2', euclid: 'Primes never end', fta: 'Factoring',
+  cantor: 'Diagonal', cantorpower: 'Power set', halting: 'Halting', eirrational: 'e',
+  fermat: "Fermat's little", lagrange: 'Lagrange', primes3mod4: '3 mod 4', euler: 'Σ 1/p',
+  chebyshev: 'Chebyshev', triples: 'Triples', flt4: 'n = 4', vonmangoldt: 'ζ′/ζ',
+  heat: 'Heat', energy: 'Energy', vorticity2d: '2D vortices', stretching3d: '3D stretching',
+  flt: 'Fermat', langlands: 'Langlands', rh: 'Riemann', navierstokes: 'Navier–Stokes',
+};
+
 // Destinations: the roadmaps. Every other proof is a building block on the way
 // to one of them, or a detour.
 export const goals = theorems.filter((t) => t.kind === 'roadmap');

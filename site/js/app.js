@@ -1,6 +1,7 @@
 import * as E from './engine.js';
 import { inline as fi, block as fb } from './format.js';
-import { concepts, conceptById, theorems, theoremById, fields, goals } from './content/index.js';
+import { concepts, conceptById, theorems, theoremById, fields, goals, labels } from './content/index.js';
+import { renderMap } from './map.js';
 
 // ---------- state ----------
 
@@ -62,27 +63,16 @@ function onPath(t) {
   return i < 0 ? null : { goal, path, i };
 }
 
-function goalCard(g) {
-  const { done, total } = E.pathProgress(state, theorems, g.id);
-  const current = state.goal === g.id;
-  return `<article class="card goal-card ${current ? 'current' : ''}">
-    <div class="eyebrow">${g.status}</div>
-    <h2><a href="#t-${g.id}">${fi(g.title)}</a></h2>
-    <p class="muted">${fi(g.tagline)}</p>
-    <p class="small">${total - 1} proofs on the way, then the destination ${bar(done / total, 'progress')} ${done}/${total}</p>
-    <div class="row"><button class="btn primary" data-act="goal" data-id="${g.id}">${current ? 'Continue' : done ? 'Resume this journey' : 'Start this journey'}</button></div>
-  </article>`;
+function summitButtons() {
+  return `<div class="summits">${goals.map((g) => {
+    const { done, total } = E.pathProgress(state, theorems, g.id);
+    return `<button class="summit-chip${state.goal === g.id ? ' current' : ''}" data-act="goal" data-id="${g.id}" data-goal="${g.id}">
+      <span class="sc-name">${labels[g.id]}</span>
+      <span class="sc-meta">${done ? `${done}/${total}` : `${total - 1} stops`} · ${g.status}</span></button>`;
+  }).join('')}</div>`;
 }
 
-function viewGoals() {
-  return `<section class="intro">
-      <h1>Build up to a great theorem</h1>
-      <p class="muted">Pick a destination. Each is reached through a sequence of complete proofs, each one using the ones before it, and every step adapts to what you already know.</p>
-    </section>
-    <div class="goals">${goals.map(goalCard).join('')}</div>`;
-}
-
-function viewJourney(goal) {
+function nextUp(goal) {
   const path = E.pathTo(theorems, goal.id);
   const next = E.recommend(state, theorems, goal.id);
   const { done, total } = E.pathProgress(state, theorems, goal.id);
@@ -105,31 +95,50 @@ function viewJourney(goal) {
       </a></li>`;
   };
 
-  return `<section class="journey-head">
-      <div class="eyebrow">Your destination · ${goal.status}</div>
-      <h1>${fi(goal.title)}</h1>
-      <p class="muted">${fi(goal.tagline)}</p>
-      <p class="small">${bar(done / total, 'journey progress')} ${done} of ${total} done</p>
-      <div class="row">
-        ${next ? `<a class="btn primary" href="#t-${next.id}"><span>${state.progress[next.id]?.step ? 'Continue' : 'Next'}: ${fi(next.title)}</span></a>` : '<span class="tag done">journey complete</span>'}
-        <button class="btn ghost" data-act="pick-goal">Change destination</button>
+  const ticket = next ? `
+    <section class="ticket">
+      <div class="ticket-main">
+        <span class="hand">next stop${state.progress[next.id]?.step ? ' (half done)' : ''}</span>
+        <h2><a href="#t-${next.id}">${fi(next.title)}</a></h2>
+        <p class="small muted">${next.attribution}</p>
+        ${g.length ? `<p class="small">brushes up: ${g.map(chip).join(' ')}</p>` : ''}
       </div>
-      ${g.length ? `<p class="small">Next proof will guide you through: ${g.map(chip).join(' ')}</p>` : ''}
-    </section>
-    <ol class="journey">${path.map(node).join('')}</ol>`;
+      <div class="ticket-stub">
+        <span class="count">${done}<small>/${total}</small></span>
+        <span class="hand">to ${labels[goal.id]}</span>
+        <a class="btn primary" href="#t-${next.id}">Go →</a>
+      </div>
+    </section>` : `
+    <section class="ticket done-ticket"><div class="ticket-main">
+      <span class="hand">you made it!</span>
+      <h2><a href="#t-${goal.id}">${fi(goal.title)}</a></h2>
+      <p class="small muted">All ${total} stops done. Pick another flag, or switch to Challenge mode in Settings and walk it again without peeking.</p>
+    </div></section>`;
+
+  return `${ticket}
+    <details class="route"><summary>the route, stop by stop</summary><ol class="journey">${path.map(node).join('')}</ol></details>`;
 }
 
 function viewHome() {
   const calib = state.diagnosed ? '' : `
-    <section class="card hero">
-      <h2>Start by calibrating</h2>
-      <p>A short diagnostic (one question per concept, skipping what it can infer — 5–12 questions, about two minutes) sets how much detail each proof step shows you. It keeps adapting as you go.</p>
-      <div class="row"><a class="btn primary" href="#diagnostic">Take the diagnostic</a>
-      <button class="btn ghost" data-act="skip-diag">Skip — start from scratch</button></div>
-    </section>`;
+    <aside class="sticky">
+      <p class="hand">psst</p>
+      <p>Answer a few quick questions (5–12, skipping whatever can be inferred) and every proof step will show the right amount of detail for you.</p>
+      <div class="row"><a class="btn primary" href="#diagnostic">Calibrate me</a>
+      <button class="btn ghost" data-act="skip-diag">Nah, start from scratch</button></div>
+    </aside>`;
 
   const goal = goalOf();
-  const main = goal && !ui.pick ? viewJourney(goal) : viewGoals();
+  const main = `
+    <section class="home-head" data-goal="${goal?.id ?? ''}">
+      <h1>${goal ? `Heading for <span class="goal-word">${labels[goal.id]}</span>` : 'Where to?'}</h1>
+      <p class="hand">${goal
+        ? 'Your route is lit up. Filled dots are proofs you have done; the pulsing one is next. Click another flag to change course.'
+        : 'Each dot is a proof, drawn to the right of the proofs it uses. The flags are four big theorems. Pick one and the map shows the way.'}</p>
+    </section>
+    <div class="map-wrap">${renderMap(theorems, labels, state, goal?.id)}</div>
+    ${summitButtons()}
+    ${goal ? nextUp(goal) : ''}`;
 
   const row = (t) => {
     const pr = state.progress[t.id];
@@ -338,6 +347,11 @@ function route() {
     default: html = viewHome();
   }
   app.innerHTML = html;
+  app.dataset.view = view;
+  // Colour the page by the destination in play: the chosen one at home, the
+  // proof's own journey on a proof page.
+  const t = view === 't' ? theoremById[id] : null;
+  document.body.dataset.goal = (t && (t.kind === 'roadmap' ? t.id : onPath(t)?.goal.id)) || state.goal || '';
   const nav = { t: 'home', diagnostic: 'home', c: 'concepts' }[view] ?? view;
   document.querySelectorAll('nav a').forEach((a) => a.classList.toggle('active', a.getAttribute('href') === `#${nav}`));
 }
@@ -403,7 +417,6 @@ app.addEventListener('click', (ev) => {
       return;
     }
     case 'goal': state.goal = el.dataset.id; save(); ui = {}; location.hash = '#home'; return rerender();
-    case 'pick-goal': ui.pick = true; break;
     case 'restart': state.progress[t.id].step = 0; ui = { view: ui.view, id: ui.id, review: true }; save(); break;
     case 'retry': delete ui.answers.practice; break;
     case 'export': {
@@ -429,6 +442,12 @@ app.addEventListener('change', async (ev) => {
       state = s; save(); location.hash = '#home';
     } catch (e) { alert(`Import failed: ${e.message}`); }
   }
+});
+
+// Map flags are SVG groups with role="button": make Enter and Space click them.
+app.addEventListener('keydown', (ev) => {
+  const el = ev.target.closest?.('[role="button"][data-act]');
+  if (el && (ev.key === 'Enter' || ev.key === ' ')) { ev.preventDefault(); el.dispatchEvent(new MouseEvent('click', { bubbles: true })); }
 });
 
 window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });

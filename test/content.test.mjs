@@ -2,7 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readdirSync } from 'node:fs';
 import { extname } from 'node:path';
-import { concepts, conceptById, theorems, theoremById } from '../site/js/content/index.js';
+import { concepts, conceptById, theorems, theoremById, labels } from '../site/js/content/index.js';
+import { layout, renderMap } from '../site/js/map.js';
 import { topoOrder } from '../site/js/engine.js';
 import { inline, block } from '../site/js/format.js';
 
@@ -74,6 +75,21 @@ test('roadmaps: labelled, cite their unproved steps, list https sources', () => 
     assert.ok(t.steps.some((s) => s.cited), `${t.id}: roadmap with no cited step`);
     t.steps.forEach((s) => s.cited !== undefined && assert.ok(s.cited.trim(), `${t.id}: empty cited`));
   }
+});
+
+test('map: every proof has a label and a spot; every edge points right; no two dots collide', () => {
+  const { pos } = layout(theorems);
+  const seen = new Set();
+  for (const t of theorems) {
+    assert.ok(labels[t.id], `${t.id}: no map label`);
+    assert.ok(pos[t.id], `${t.id}: not placed`);
+    const key = `${pos[t.id].x},${pos[t.id].y}`;
+    assert.ok(!seen.has(key), `${t.id}: overlaps another node`);
+    seen.add(key);
+    (t.requiresTheorems ?? []).forEach((p) => assert.ok(pos[p].x < pos[t.id].x, `${p} -> ${t.id} points left`));
+  }
+  const svgOut = renderMap(theorems, labels, { mastery: {}, progress: {} }, 'rh');
+  theorems.forEach((t) => assert.ok(svgOut.includes(`#t-${t.id}`) || svgOut.includes(`data-id="${t.id}"`), `${t.id}: missing from map`));
 });
 
 function* figures() {
