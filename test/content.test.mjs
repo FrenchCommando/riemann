@@ -1,5 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readdirSync } from 'node:fs';
+import { extname } from 'node:path';
 import { concepts, conceptById, theorems, theoremById } from '../site/js/content/index.js';
 import { topoOrder } from '../site/js/engine.js';
 import { inline, block } from '../site/js/format.js';
@@ -66,6 +68,16 @@ test('all math renders in KaTeX (strict) and dollars are balanced', () => {
       assert.doesNotThrow(() => inline(s, true), `${where}`);
     }
   }
+});
+
+// Browsers refuse ES modules served with a non-JS MIME type, and stock nginx
+// mime.types has no .mjs (it went out as application/octet-stream: blank page).
+// Only ship extensions every static server types correctly.
+test('site/ only contains files with standard served MIME types', () => {
+  const ok = new Set(['.html', '.css', '.js', '.woff2', '.svg', '.png', '.json']);
+  const files = readdirSync(new URL('../site/', import.meta.url), { recursive: true, withFileTypes: true })
+    .filter((d) => d.isFile());
+  for (const f of files) assert.ok(ok.has(extname(f.name)), `site file with unsafe extension: ${f.name}`);
 });
 
 test('formatter: escapes HTML outside math, keeps lists', () => {

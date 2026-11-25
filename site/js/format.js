@@ -1,6 +1,6 @@
 // Tiny formatter: $inline$, $$display$$, **bold**, *italic*, "- " lists, blank-line paragraphs.
 // Math is rendered with KaTeX here (not auto-render), so tests can check every formula.
-import katex from '../vendor/katex/katex.mjs';
+import katex from '../vendor/katex/katex.js';
 
 export const opts = { strict: 'error' };
 
