@@ -33,6 +33,10 @@ const MODE_TEXT = {
   guided: ['Guided', 'Full walkthrough, with refreshers for the concepts involved.'],
 };
 
+// Figures are trusted, authored SVG from content/ (see content/figures.js).
+const figure = (f) => !f ? '' :
+  `<figure class="fig"><div class="svgs">${f.svgs.join('')}</div>${f.caption ? `<figcaption>${fi(f.caption)}</figcaption>` : ''}</figure>`;
+
 function question(q, key, { onAnswer } = {}) {
   const chosen = ui.answers?.[key];
   const opts = q.options.map((o, i) => {
@@ -143,7 +147,7 @@ function stepHtml(t, s, i, cur) {
   const key = `${t.id}:${i}`;
   const needsAnswer = s.check && ui.answers?.[key] === undefined;
 
-  let body = `<p class="claim">${fi(s.claim)}</p>`;
+  let body = `<p class="claim">${fi(s.claim)}</p>${figure(s.figure)}`;
   if (!revealed) {
     body += `<div class="tryit"><p>How would you justify this? Think it through, then reveal.</p>
       <button class="btn" data-act="reveal" data-i="${i}">Reveal justification</button></div>`;
@@ -190,6 +194,7 @@ function viewTheorem(id) {
     <h1>${fi(t.title)}</h1>
     <div class="muted small">${t.attribution}</div>
     <div class="statement"><span class="eyebrow">Theorem</span>${fb(t.statement)}</div>
+    ${figure(t.figure)}
     <p>${fi(t.intro)}</p>
     ${builds.length ? `<p class="note">Builds on ${builds.map((x) => `<a href="#t-${x}">${fi(theoremById[x].title)}</a>`).join(', ')} — you can go ahead, but those will make more sense first.</p>` : ''}
     ${g.length && cur === 0 ? `<p class="note">You'll get refreshers on: ${g.map(chip).join(' ')}</p>` : ''}

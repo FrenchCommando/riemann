@@ -284,6 +284,36 @@ Algebra used with areas: $(a+b)^2 = a^2 + 2ab + b^2$.`,
     },
   },
   {
+    id: 'similar',
+    name: 'Similar triangles',
+    prereqs: ['area'],
+    summary: 'Same angles, proportional sides.',
+    primer: r`Two triangles with the same three angles are **similar**: one is a scaled copy of the other, so the ratios of corresponding sides are equal. Two equal angles are enough, since the angle sum forces the third; for right triangles, one shared acute angle is enough.
+
+If triangles with sides $x, y, z$ and $x', y', z'$ (in corresponding order) are similar, then $\frac{x}{x'} = \frac{y}{y'} = \frac{z}{z'}$. Cross-multiplying turns these into equations like $x\,y' = x'\,y$.`,
+    q: {
+      prompt: r`Two right triangles each have a $30^\circ$ angle. The first has hypotenuse $2$ and shortest side $1$. The second has hypotenuse $10$. How long is its shortest side?`,
+      options: [r`$5$`, r`$9$`, r`$20$`],
+      answer: 0,
+      explain: r`Both have angles $30^\circ, 60^\circ, 90^\circ$, so they are similar with scale factor $\frac{10}{2} = 5$: the shortest side is $1 \cdot 5 = 5$. Sides scale by multiplying, not by adding the same amount.`,
+    },
+  },
+  {
+    id: 'vectors',
+    name: 'Vectors & the dot product',
+    prereqs: [],
+    summary: 'Arrows you can add; the dot product gives lengths and angles.',
+    primer: r`A vector in the plane is $u = (u_1, u_2)$, and vectors add componentwise. The **dot product** $u \cdot v = u_1 v_1 + u_2 v_2$ is symmetric and distributes over addition, so it expands like multiplication: $(u + v) \cdot (u + v) = u \cdot u + 2\,u \cdot v + v \cdot v$.
+
+It measures length, $|u|^2 = u \cdot u$, and angle, $u \cdot v = |u|\,|v| \cos\theta$. In particular $u \perp v$ exactly when $u \cdot v = 0$.`,
+    q: {
+      prompt: r`Are $u = (2, 1)$ and $v = (-1, 2)$ perpendicular?`,
+      options: [r`Yes: $u \cdot v = 0$`, r`No: $u \cdot v = 3$`, r`Can't tell without drawing them`],
+      answer: 0,
+      explain: r`$u \cdot v = 2 \cdot (-1) + 1 \cdot 2 = 0$, so they are perpendicular. Multiply matching components: first with first, second with second.`,
+    },
+  },
+  {
     id: 'powerset',
     name: 'Subsets & the power set',
     prereqs: ['functions'],

@@ -52,12 +52,37 @@ function* texts() {
     yield [c.id, c.summary, c.primer, c.q.prompt, c.q.explain, ...c.q.options];
   }
   for (const t of theorems) {
-    yield [t.id, t.title, t.statement, t.intro, t.takeaway];
+    yield [t.id, t.title, t.statement, t.intro, t.takeaway, ...(t.figure?.caption ? [t.figure.caption] : [])];
     for (const s of t.steps) {
-      yield [`${t.id}:${s.title}`, s.claim, s.why, s.detail, ...(s.check ? [s.check.prompt, s.check.explain, ...s.check.options] : [])];
+      yield [`${t.id}:${s.title}`, s.claim, s.why, s.detail,
+        ...(s.check ? [s.check.prompt, s.check.explain, ...s.check.options] : []),
+        ...(s.figure?.caption ? [s.figure.caption] : [])];
     }
   }
 }
+
+function* figures() {
+  for (const t of theorems) {
+    if (t.figure) yield [t.id, t.figure];
+    for (const s of t.steps) if (s.figure) yield [`${t.id}:${s.title}`, s.figure];
+  }
+}
+
+test('figures: one or more labelled SVGs with balanced tags', () => {
+  for (const [where, f] of figures()) {
+    assert.ok(Array.isArray(f.svgs) && f.svgs.length, `${where}: svgs`);
+    for (const s of f.svgs) {
+      assert.match(s, /^<svg viewBox="[\d. -]+" role="img" aria-label="[^"]+"/, `${where}: svg header`);
+      const stack = [];
+      for (const [, close, name, self] of s.matchAll(/<(\/?)([a-zA-Z]+)[^>]*?(\/?)>/g)) {
+        if (self) continue;
+        if (close) assert.equal(stack.pop(), name, `${where}: </${name}> mismatched`);
+        else stack.push(name);
+      }
+      assert.deepEqual(stack, [], `${where}: unclosed ${stack.join(', ')}`);
+    }
+  }
+});
 
 test('all math renders in KaTeX (strict) and dollars are balanced', () => {
   for (const [where, ...ts] of texts()) {

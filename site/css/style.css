@@ -127,3 +127,24 @@ details summary { font: .85rem var(--sans); color: var(--accent); cursor: pointe
 .katex { font-size: 1.05em; }
 .katex-display { overflow-x: auto; overflow-y: hidden; padding: .2rem 0; }
 .tex-error { color: var(--no); }
+
+/* figures (content/figures.js) */
+.fig { margin: 1rem 0; }
+.fig .svgs { display: flex; flex-wrap: wrap; gap: 1rem; justify-content: center; }
+.fig svg { flex: 1 1 220px; max-width: 340px; height: auto; }
+.fig figcaption { font-size: .88rem; color: var(--muted); text-align: center; margin-top: .4rem; }
+.f-tri { fill: var(--warn-bg); stroke: var(--ink); stroke-width: 1.5; stroke-linejoin: round; }
+.f-sq { fill: color-mix(in srgb, var(--accent) 22%, transparent); stroke: var(--accent); stroke-width: 1.5; stroke-linejoin: round; }
+.f-sq2 { fill: color-mix(in srgb, var(--ok) 22%, transparent); stroke: var(--ok); stroke-width: 1.5; }
+.f-mark { fill: none; stroke: var(--ink); stroke-width: 1.2; }
+.f-arc { fill: none; stroke: var(--accent); stroke-width: 1.6; }
+.f-alt { fill: none; stroke: var(--ink); stroke-width: 1.3; stroke-dasharray: 5 4; }
+.f-vec { fill: none; stroke: var(--ink); stroke-width: 2; }
+.f-vec.f-sum { stroke: var(--accent); }
+.f-head { fill: var(--ink); }
+.f-lab { font: italic 18px var(--serif); fill: var(--ink); text-anchor: middle; dominant-baseline: central; }
+.f-big { font-size: 26px; }
+.f-sm { font-size: 15px; }
+.f-acc { fill: var(--accent); }
+.f-pt { font: 14px var(--sans); fill: var(--muted); }
+.f-v { font-weight: 700; }

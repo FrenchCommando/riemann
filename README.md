@@ -13,7 +13,7 @@ The number-theory track builds to Riemann: Euclid (infinitely many primes) → E
 
 ## How it adapts
 
-1. **Concept graph** (`site/js/content/concepts.js`) — 21 concepts with prerequisites, each with a primer and a diagnostic question.
+1. **Concept graph** (`site/js/content/concepts.js`) — 23 concepts with prerequisites, each with a primer and a diagnostic question.
 2. **Diagnostic** — picks the question with the most expected inferences: a hit marks all prerequisites solid, a miss marks all dependents weak. It weights the two by the learner's running hit rate, so experts get asked deep concepts and novices shallow ones. Capped at 12 questions; anything still unassessed starts at an estimate from the hit rate and calibrates as you go.
 3. **Mastery model** — each concept has p ∈ (0,1), updated by a decaying learning rate (floored at 0.2 so it keeps tracking) on every check question, "Got it" and "I'm lost".
 4. **Per-step mode** from the weakest concept the step uses:
@@ -48,7 +48,7 @@ npm run serve     # http://localhost:8080
 
 ## Adding a theorem
 
-Copy a file in `site/js/content/theorems/`, register it in `content/index.js`. Each step: `title`, `claim`, `why` (standard), `detail` (guided), `concepts` it relies on, optional `check` {prompt, options, answer, explain}. Write wrong options that come from real misconceptions, since that's what makes the check useful. Inside math, use `\lt`/`\gt` instead of `<`/`>`. `npm test` fails on any KaTeX error, unbalanced `$`, or a dangling concept or answer index.
+Copy a file in `site/js/content/theorems/`, register it in `content/index.js`. Each step: `title`, `claim`, `why` (standard), `detail` (guided), `concepts` it relies on, optional `check` {prompt, options, answer, explain}, optional `figure` {svgs, caption} (inline SVG built with `content/figures.js`; a theorem can have one under its statement too). Write wrong options that come from real misconceptions, since that's what makes the check useful. Inside math, use `\lt`/`\gt` instead of `<`/`>`. `npm test` fails on any KaTeX error, unbalanced `$`, or a dangling concept or answer index.
 
 ## Deploy on the Raspberry Pi
 
