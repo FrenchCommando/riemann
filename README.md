@@ -35,7 +35,8 @@ site/                 everything served
   vendor/katex/       pinned KaTeX 0.16.47 (ES module + CSS + woff2 fonts)
 test/                 node --test: content integrity, every formula through
                       KaTeX in strict mode, engine behaviour
-deploy/               Pi: Dockerfile, inner nginx, compose, edge vhost, deploy.sh
+deploy/               Pi: Dockerfile, inner nginx, host nginx vhost
+docker-compose.yml    read-only nginx:alpine on 127.0.0.1:3020
 ```
 
 ## Develop
@@ -51,23 +52,18 @@ Copy a file in `site/js/content/theorems/`, register it in `content/index.js`. E
 
 ## Deploy on the Raspberry Pi
 
-Two tiers, matching the existing edge: the edge nginx terminates TLS and proxies to a read-only nginx:alpine container on `127.0.0.1:8088`.
+Served at https://riemann.http.nyc. Host nginx terminates TLS and proxies to a read-only nginx:alpine container on `127.0.0.1:3020`.
+
+On push to `main`, `.github/workflows/ci.yml` runs the tests, then sends a `repository_dispatch` to [FrenchCommando/pi-deploy](https://github.com/FrenchCommando/pi-deploy), whose runner on the Pi pulls `/home/frenchcommando/riemann`, rebuilds and checks the site answers. Needs the `PI_DEPLOY_TOKEN` repo secret.
+
+One-time setup on the Pi:
 
 ```sh
-# once
-git clone <this repo> /srv/riemann && cd /srv/riemann
-sudo cp deploy/edge-riemann.conf /etc/nginx/sites-enabled/riemann.conf   # set your domain
-sudo certbot certonly --webroot -w /var/www/certbot -d <your domain>
+cd ~ && git clone https://github.com/FrenchCommando/riemann.git && cd riemann
+sudo cp deploy/edge-riemann.conf /etc/nginx/sites-available/riemann.conf
+sudo ln -s /etc/nginx/sites-available/riemann.conf /etc/nginx/sites-enabled/
 sudo nginx -t && sudo systemctl reload nginx
-
-# every deploy (idempotent: pull, test, rebuild, restart, health-check)
-./deploy/deploy.sh
+sudo certbot --nginx -d riemann.http.nyc
 ```
 
-- If your edge nginx runs in a container rather than on the host, proxy to `host.docker.internal:8088` (add `extra_hosts: ["host.docker.internal:host-gateway"]` to the edge), or put both on a shared Docker network and use `http://riemann:80`.
-- Authelia gating is two commented `include` lines in the edge vhost.
-- Rebuild from scratch: clone, run the three "once" steps, then `deploy.sh`. The only state is in users' browsers.
-
-## Alternative: GitHub Pages
-
-`.github/workflows/pages.yml` runs the tests and publishes `site/` on push to `main`. Turn it on under repo Settings → Pages → Source: GitHub Actions.
+Manual deploy: `git pull && docker compose up -d --build`. The only state is in users' browsers.
