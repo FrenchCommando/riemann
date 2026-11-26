@@ -200,9 +200,15 @@ function primerCard(id) {
 }
 
 function stepHtml(t, s, i, cur) {
+  // Decide a step's mode and primers once per visit: answering its check moves
+  // mastery, and re-deciding then would swap the page out from under the reader
+  // (a correct answer could flip guided to challenge and hide the check).
   const fallback = Math.min(...t.prereqs.map((c) => E.p(state, c)));
-  let mode = E.stepMode(state, s, fallback);
-  if (ui.lost?.[i]) mode = 'guided';
+  const fixed = ((ui.modes ??= {})[i] ??= (() => {
+    const m = E.stepMode(state, s, fallback);
+    return { mode: m, weak: m === 'guided' ? E.weakConcepts(state, s.concepts) : [] };
+  })());
+  const mode = ui.lost?.[i] ? 'guided' : fixed.mode;
   const [mname, mdesc] = MODE_TEXT[mode];
   const isCur = i === cur;
 
@@ -212,7 +218,7 @@ function stepHtml(t, s, i, cur) {
   }
 
   const revealed = mode !== 'challenge' || ui.reveal?.[i];
-  const weak = mode === 'guided' ? (ui.lost?.[i] ? s.concepts : E.weakConcepts(state, s.concepts)) : [];
+  const weak = ui.lost?.[i] ? s.concepts : fixed.weak;
   const key = `${t.id}:${i}`;
   const needsAnswer = s.check && ui.answers?.[key] === undefined;
 
