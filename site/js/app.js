@@ -34,6 +34,11 @@ const MODE_TEXT = {
   guided: ['Guided', 'Full walkthrough, with refreshers for the concepts involved.'],
 };
 
+// Every render replaces the whole page, so a <details> keeps its open state in ui
+// (see the toggle listener) instead of snapping shut whenever something is clicked.
+const details = (key, summary, body, cls = '') =>
+  `<details data-key="${key}"${cls ? ` class="${cls}"` : ''}${ui.details?.[key] ? ' open' : ''}><summary>${summary}</summary>${body}</details>`;
+
 // Figures are trusted, authored SVG from content/ (see content/figures.js).
 const figure = (f) => !f ? '' :
   `<figure class="fig"><div class="svgs">${f.svgs.join('')}</div>${f.caption ? `<figcaption>${fi(f.caption)}</figcaption>` : ''}</figure>`;
@@ -46,7 +51,7 @@ function question(q, key, { onAnswer } = {}) {
     return `<button class="opt ${cls}" data-act="answer" data-key="${key}" data-i="${i}" ${chosen !== undefined ? 'disabled' : ''}>${fi(o)}</button>`;
   }).join('');
   const fb_ = chosen === undefined ? '' :
-    `<div class="feedback ${chosen === q.answer ? 'ok' : 'no'}"><strong>${chosen === q.answer ? 'Right.' : chosen === -1 ? 'No problem.' : 'Not quite.'}</strong> ${fi(q.explain)}</div>`;
+    `<div class="feedback ${chosen === q.answer ? 'ok' : 'no'}${ui.fresh === key ? ' fresh' : ''}"><strong>${chosen === q.answer ? 'Right.' : chosen === -1 ? 'No problem.' : 'Not quite.'}</strong> ${fi(q.explain)}</div>`;
   return `<div class="question"><div class="prompt">${fi(q.prompt)}</div><div class="opts">${opts}</div>${fb_}</div>`;
 }
 
@@ -116,7 +121,7 @@ function nextUp(goal) {
     </div></section>`;
 
   return `${ticket}
-    <details class="route"><summary>the route, stop by stop</summary><ol class="journey">${path.map(node).join('')}</ol></details>`;
+    ${details('route', 'the route, stop by stop', `<ol class="journey">${path.map(node).join('')}</ol>`, 'route')}`;
 }
 
 function viewHome() {
@@ -157,7 +162,7 @@ function viewHome() {
   }).join('');
 
   return `${main}${calib}
-    <details class="all-proofs"><summary>All ${theorems.length} proofs, by field</summary>${groups}</details>
+    ${details('all-proofs', `All ${theorems.length} proofs, by field`, groups, 'all-proofs')}
     <section><h3>Your concept map <a class="small" href="#concepts">all concepts →</a></h3>
       <div class="chips">${E.topoOrder(concepts).map(chip).join(' ')}</div>
       <p class="small muted">Green = solid, amber = shaky, grey = new. Tap one to read its primer or practise.</p>
@@ -199,7 +204,7 @@ function primerCard(id) {
   return `<aside class="primer"><div class="eyebrow">Refresher · <a href="#c-${id}">${c.name}</a></div>${fb(c.primer)}</aside>`;
 }
 
-function stepHtml(t, s, i, cur) {
+function stepHtml(t, s, i, cur, enter) {
   // Decide a step's mode and primers once per visit: answering its check moves
   // mastery, and re-deciding then would swap the page out from under the reader
   // (a correct answer could flip guided to challenge and hide the check).
@@ -229,7 +234,7 @@ function stepHtml(t, s, i, cur) {
   } else {
     body += `<div class="why">${fb(s.why)}</div>`;
     if (mode === 'guided') body += `<div class="detail">${fb(s.detail)}</div>${weak.map(primerCard).join('')}`;
-    else body += `<details><summary>More detail</summary><div class="detail">${fb(s.detail)}</div></details>`;
+    else body += details(`detail-${i}`, 'More detail', `<div class="detail">${fb(s.detail)}</div>`);
   }
   if (s.check && (revealed || !isCur)) body += `<div class="check"><div class="eyebrow">Check</div>${question(s.check, key)}</div>`;
 
@@ -241,7 +246,7 @@ function stepHtml(t, s, i, cur) {
     </div>`;
   }
 
-  return `<li class="step ${isCur ? 'current' : 'past open'}">
+  return `<li class="step ${isCur ? `current${enter ? ' enter' : ''}` : 'past open'}">
     <div class="step-top"><span class="num">${i + 1}</span><span class="step-title">${s.title}</span>
       ${s.cited ? '<span class="tag cited">cited</span>' : ''}
       <span class="mode ${mode}" title="${mdesc}">${mname}</span>
@@ -257,7 +262,10 @@ function viewTheorem(id) {
   const g = E.gaps(state, concepts, t);
   const builds = (t.requiresTheorems ?? []).filter((x) => !E.isDone(state, x));
 
-  const steps = t.steps.slice(0, Math.min(cur + 1, t.steps.length)).map((s, i) => stepHtml(t, s, i, cur)).join('');
+  // The current step pops in when it becomes current, not on every re-render.
+  const enter = ui.shown !== cur;
+  ui.shown = cur;
+  const steps = t.steps.slice(0, Math.min(cur + 1, t.steps.length)).map((s, i) => stepHtml(t, s, i, cur, enter)).join('');
   const where = onPath(t);
   const after = where && where.path.slice(where.i + 1).find((x) => !E.isDone(state, x.id));
   const end = cur >= t.steps.length ? `
@@ -354,6 +362,7 @@ function route() {
   }
   app.innerHTML = html;
   app.dataset.view = view;
+  ui.fresh = undefined;
   // Colour the page by the destination in play: the chosen one at home, the
   // proof's own journey on a proof page.
   const t = view === 't' ? theoremById[id] : null;
@@ -372,6 +381,7 @@ function rerender(scrollTo) {
 function onAnswer(key, i) {
   ui.answers ??= {};
   ui.answers[key] = i;
+  ui.fresh = key;
   if (key === 'diag') return; // recorded on "Next"
   if (key === 'practice') {
     E.observe(state, ui.id, i === conceptById[ui.id].q.answer);
@@ -449,6 +459,12 @@ app.addEventListener('change', async (ev) => {
     } catch (e) { alert(`Import failed: ${e.message}`); }
   }
 });
+
+// toggle doesn't bubble, so listen in the capture phase.
+app.addEventListener('toggle', (ev) => {
+  const key = ev.target.dataset?.key;
+  if (key) (ui.details ??= {})[key] = ev.target.open;
+}, true);
 
 // Map flags are SVG groups with role="button": make Enter and Space click them.
 app.addEventListener('keydown', (ev) => {
