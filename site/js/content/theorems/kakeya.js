@@ -127,14 +127,15 @@ Tao called the paper a historic breakthrough, and Nets Katz called it a solution
     },
     {
       title: 'Status, November 2026',
-      claim: r`Hong Wang received a Fields Medal on 23 July 2026, in part for this work. In October 2026 OpenAI posted preprints claiming the four-dimensional case and the local smoothing conjecture, which would imply Kakeya in every dimension; as of November neither has been independently verified.`,
-      cited: r`ICM 2026, Philadelphia; OpenAI preprints of 6 and 26 October 2026; Scientific American, 6 October 2026; reporting listed below`,
-      why: r`The three-dimensional proof is accepted by experts, and its sticky half is published. The October claims came in a release of $372$ results, many checked in Lean, but it is not reported whether the Kakeya proof is among them, and mathematicians quoted by Scientific American said assessing the batch will take months.`,
-      detail: r`What is settled and what is not, from the sources below:
-- **$n = 3$:** proved, both dimensions. The stronger **maximal-function** form of the conjecture in $\mathbb R^3$ was still open when Tao wrote about the proof in 2025.
-- **$n = 4$:** claimed in the preprint "Every four-dimensional Kakeya set has full Hausdorff dimension", released 6 October 2026. Not yet reviewed.
-- **All $n$:** OpenAI announced on 26 October 2026 a proof of the local smoothing conjecture for the wave equation, which implies Kakeya in every dimension. Not yet reviewed.
-- **Restriction in $\mathbb R^3$:** open; Kakeya is necessary for it, not sufficient (step 2).
+      claim: r`Hong Wang received a Fields Medal on 23 July 2026, in part for this work. In autumn 2026 OpenAI posted preprints claiming the four-dimensional case and Sogge's local smoothing conjecture, from which they derive Kakeya, in its maximal-function form, in every dimension. As of November no expert assessment of either has been reported.`,
+      cited: r`ICM 2026, Philadelphia; OpenAI, Every four-dimensional Kakeya set has full Hausdorff dimension (dated 24 Sep 2026) and Local smoothing for the Euclidean wave equation (dated 25 Oct 2026); Scientific American, 6 October 2026`,
+      why: r`The three-dimensional proof is accepted by experts, and its sticky half is published. The local smoothing preprint is 59 pages; OpenAI's catalogue lists its main theorems, including that every Kakeya set has full Hausdorff dimension, as formalized in Lean. The four-dimensional preprint, 175 pages, has no Lean entry of its own. OpenAI calls the collection raw research data and warns that its unformalized results could have issues.`,
+      detail: r`What each claim says, from the preprints themselves:
+- **$n = 4$** (175 pages): every subset of $\mathbb R^4$ containing a unit segment in every direction has Hausdorff dimension $4$, with no compactness assumption. It builds on the three-dimensional theorem (through a later streamlined proof by Guth, Wang and Zahl), and its new device is local quadratic fits: line pieces that stay close to the zero set of one quadratic polynomial across many scales.
+- **All $n \ge 2$** (59 pages): Sogge's local smoothing estimate for the wave equation, with the Bochner–Riesz conjecture, Fourier restriction for the sphere inside the conjectured range, and the Kakeya and Nikodym maximal conjectures derived from it. That would also settle the maximal-function form in $\mathbb R^3$, which Tao described as open in 2025.
+- **Verification:** a Lean proof shows that the formal statement follows; whether the formal statement says what the conjecture says is what reviewers check, as with the Navier–Stokes claim.
+
+If the local smoothing claim holds, it settles the Kakeya conjecture and much of the harmonic analysis in step 2 at once.
 
 As with the Riemann Hypothesis and Navier–Stokes entries: this is taken from the reporting listed below, written with Claude, and the situation is changing.`,
       concepts: [],
@@ -146,7 +147,7 @@ As with the Riemann Hypothesis and Navier–Stokes entries: this is taken from t
           r`The plane`,
         ],
         answer: 0,
-        explain: r`It proves both Minkowski and Hausdorff dimension $3$ in $\mathbb R^3$. The plane was settled in 1971. Four dimensions and up were open in 2025, and are now claimed but unverified.`,
+        explain: r`It proves both Minkowski and Hausdorff dimension $3$ in $\mathbb R^3$. The plane was settled in 1971. Four dimensions and up, and the maximal form, were open in 2025; both are now claimed in OpenAI's preprints, which are not yet reviewed.`,
       },
     },
   ],
@@ -159,5 +160,8 @@ As with the Riemann Hypothesis and Navier–Stokes entries: this is taken from t
     { label: 'NYU: Hong Wang wins the Fields Medal', url: 'https://math.nyu.edu/dynamic/news/101/' },
     { label: 'Scientific American: Four young mathematicians awarded the 2026 Fields Medals', url: 'https://scientificamerican.com/article/2026-fields-medals-go-to-four-young-mathematicians' },
     { label: 'Scientific American, 6 Oct 2026: OpenAI unleashes hundreds more math results', url: 'https://www.scientificamerican.com/article/openai-unleashes-hundreds-more-math-results-upon-a-field-already-in-shock/' },
+    { label: 'OpenAI, Every four-dimensional Kakeya set has full Hausdorff dimension (preprint, PDF)', url: 'https://github.com/openai/math/blob/main/preprints/Every-four-dimensional-Kakeya-set-has-full-Hausdorff-dimension-September-24-2026/paper.pdf' },
+    { label: 'OpenAI, Local smoothing for the Euclidean wave equation (preprint, PDF)', url: 'https://github.com/openai/math/blob/main/preprints/Local-smoothing-for-the-Euclidean-wave-equation-October-25-2026/paper.pdf' },
+    { label: 'OpenAI math repository: Lean formalization catalogue', url: 'https://github.com/openai/math/blob/main/lean/formalization.yaml' },
   ],
 };
