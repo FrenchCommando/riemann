@@ -299,6 +299,40 @@ If triangles with sides $x, y, z$ and $x', y', z'$ (in corresponding order) are 
     },
   },
   {
+    id: 'dimension',
+    name: 'Measure zero & dimension',
+    prereqs: ['area', 'logarithm'],
+    summary: 'Sets of zero area, and dimension measured by counting small discs.',
+    primer: r`A set in the plane has **area zero** if it can be covered by rectangles of total area as small as you like. Segments, curves and countable sets have area zero.
+
+Dimension tells such sets apart. Let $N(\delta)$ be the fewest discs of radius $\delta$ needed to cover the set. For a segment $N(\delta) \approx \delta^{-1}$; for a square $N(\delta) \approx \delta^{-2}$. The **Minkowski dimension** is the exponent:
+$$\dim = \lim_{\delta \to 0} \frac{\log N(\delta)}{\log (1/\delta)}.$$
+An equivalent test: the $\delta$-neighbourhood (all points within $\delta$ of the set) has area about $\delta^{2 - \dim}$. Factors like $\log(1/\delta)$ don't change the exponent. **Hausdorff dimension** is a refinement that allows discs of different sizes; it is never larger.`,
+    q: {
+      prompt: r`The middle-thirds Cantor set is covered by $2^k$ intervals of length $3^{-k}$, and needs that many. What is its dimension?`,
+      options: [r`$\log 2 / \log 3 \approx 0.63$`, r`$0$, since it has length zero`, r`$2/3$`],
+      answer: 0,
+      explain: r`$N(3^{-k}) = 2^k$, so $\log N / \log(1/\delta) = k \log 2 / (k \log 3)$. Length zero only says the dimension is at most $1$; it can still be positive.`,
+    },
+  },
+  {
+    id: 'cauchyschwarz',
+    name: 'Cauchy–Schwarz',
+    prereqs: ['vectors'],
+    summary: '(∫fg)² ≤ ∫f² ∫g², and what it says about overlapping sets.',
+    primer: r`For vectors, $|u \cdot v| \le |u|\,|v|$. The same holds for functions, with integrals as dot products:
+$$\Big(\int f g\Big)^2 \le \int f^2 \int g^2.$$
+The most useful case takes $g = 1$ on a set $U$ that contains everywhere $f$ is nonzero: $\big(\int f\big)^2 \le |U| \int f^2$, that is,
+$$|U| \ge \frac{\big(\int f\big)^2}{\int f^2}.$$
+If $f = 1_{T_1} + \dots + 1_{T_N}$ counts how many of the sets $T_i$ cover each point, then $\int f = \sum |T_i|$ and $\int f^2 = \sum_{i,j} |T_i \cap T_j|$. So **little overlap forces a large union**.`,
+    q: {
+      prompt: r`$N$ sets of area $a$ are pairwise disjoint, and $f$ is the sum of their indicator functions. What is $\int f^2$?`,
+      options: [r`$Na$`, r`$N^2 a$`, r`$a$`],
+      answer: 0,
+      explain: r`Disjoint sets give $f = 1$ on their union and $0$ elsewhere, so $f^2 = f$ and $\int f^2 = Na$. ($N^2 a$ is the other extreme: $N$ copies of the same set.)`,
+    },
+  },
+  {
     id: 'vectors',
     name: 'Vectors & the dot product',
     prereqs: [],
@@ -543,6 +577,23 @@ In $\mathbb F_p$, adding $1$ to itself $p$ times gives $0$; one says the field h
       options: [r`$3$`, r`$5$`, r`$1$`],
       answer: 0,
       explain: r`$x^3 - x = x(x - 1)(x + 1)$, so the roots are $0, 1, 4$. Degree $3$ allows at most $3$, and here all three occur.`,
+    },
+  },
+  {
+    id: 'linsys',
+    name: 'Linear equations',
+    prereqs: ['fields'],
+    summary: 'More unknowns than equations always leaves a nonzero solution.',
+    primer: r`A **homogeneous** linear system, $m$ equations $a_{i1} x_1 + \dots + a_{in} x_n = 0$ with coefficients in a field, always has the solution $x = 0$. If there are **more unknowns than equations** ($n \gt m$) it has a nonzero one too.
+
+Reason: Gaussian elimination uses each equation to eliminate one unknown, dividing by a nonzero coefficient, which a field allows. After at most $m$ eliminations some unknown is still free. Set it to $1$ and solve for the rest.
+
+In linear-algebra terms: the solutions form a subspace of dimension at least $n - m$.`,
+    q: {
+      prompt: r`Three homogeneous linear equations in five unknowns, with coefficients in $\mathbb F_7$. Is there a nonzero solution?`,
+      options: [r`Yes, always`, r`Only if the equations are independent`, r`Only over $\mathbb R$`],
+      answer: 0,
+      explain: r`$5 \gt 3$, so at least $5 - 3 = 2$ unknowns stay free after elimination. Elimination only divides by nonzero numbers, which works in any field, $\mathbb F_7$ included.`,
     },
   },
   {

@@ -30,16 +30,20 @@ import cyclicunits from './theorems/cyclicunits.js';
 import frobenius from './theorems/frobenius.js';
 import reedsolomon from './theorems/reedsolomon.js';
 import galois from './theorems/galois.js';
+import besicovitch from './theorems/besicovitch.js';
+import cordoba from './theorems/cordoba.js';
+import dvir from './theorems/dvir.js';
+import kakeya from './theorems/kakeya.js';
 
 export { concepts, conceptById } from './concepts.js';
 // Roadmaps (kind: 'roadmap') come last: they map a proof too long to walk
 // through, proving what fits and citing the rest.
 export const theorems = [
   pythagoras, sqrt2, euclid, fta, cantor, cantorpower, halting,
-  eirrational, fermat, lagrange, finitefields, cyclicunits, frobenius, reedsolomon,
+  eirrational, fermat, lagrange, finitefields, cyclicunits, frobenius, reedsolomon, dvir,
   primes3mod4, euler, chebyshev,
-  triples, flt4, vonmangoldt, heat, energy, vorticity2d, stretching3d,
-  flt, langlands, rh, navierstokes, galois,
+  triples, flt4, vonmangoldt, heat, energy, vorticity2d, stretching3d, besicovitch, cordoba,
+  flt, langlands, rh, navierstokes, galois, kakeya,
 ];
 export const theoremById = Object.fromEntries(theorems.map((t) => [t.id, t]));
 // Short names for the map on the home page (plain text, no math).
@@ -51,7 +55,7 @@ export const labels = {
   heat: 'Heat', energy: 'Energy', vorticity2d: '2D vortices', stretching3d: '3D stretching',
   flt: 'Fermat', langlands: 'Langlands', rh: 'Riemann', navierstokes: 'Navier–Stokes',
   finitefields: 'GF(256)', cyclicunits: 'Primitive', frobenius: 'Frobenius', reedsolomon: 'QR codes',
-  galois: 'Galois',
+  galois: 'Galois', besicovitch: 'Needle', cordoba: 'Plane Kakeya', dvir: 'Dvir', kakeya: 'Kakeya',
 };
 
 // Destinations: the roadmaps. Every other proof is a building block on the way

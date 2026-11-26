@@ -22,6 +22,7 @@
   --g-rh: #e4572e;
   --g-navierstokes: #0f8f84;
   --g-galois: #2f6fb3;
+  --g-kakeya: #b8407a;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
   --hand: "Segoe Print", "Bradley Hand", "Chalkboard SE", "Comic Neue", "Comic Sans MS", cursive;
@@ -31,7 +32,7 @@
     --bg: #1b2320; --grid: rgba(255, 255, 255, .045); --paper: #222c28; --ink: #ece8dc; --muted: #a3a99d; --rule: #34413b;
     --accent: #ff8a65; --accent-ink: #1b1410;
     --ok: #8fd6a3; --ok-bg: #243a2c; --warn: #f0c36d; --warn-bg: #3a3220; --no: #f4a29a; --no-bg: #3d2522;
-    --g-flt: #f6c453; --g-langlands: #b794f4; --g-rh: #ff8a65; --g-navierstokes: #4fd1c5; --g-galois: #7fb3f0;
+    --g-flt: #f6c453; --g-langlands: #b794f4; --g-rh: #ff8a65; --g-navierstokes: #4fd1c5; --g-galois: #7fb3f0; --g-kakeya: #f48fbf;
   }
 }
 [data-goal="flt"] { --accent: var(--g-flt); }
@@ -39,6 +40,7 @@
 [data-goal="rh"] { --accent: var(--g-rh); }
 [data-goal="navierstokes"] { --accent: var(--g-navierstokes); }
 [data-goal="galois"] { --accent: var(--g-galois); }
+[data-goal="kakeya"] { --accent: var(--g-kakeya); }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -311,6 +313,9 @@ details summary { font: 1rem var(--hand); color: var(--accent); cursor: pointer;
 .f-cell { fill: none; stroke: var(--rule); stroke-width: 1; }
 .f-hl { fill: color-mix(in srgb, var(--accent) 22%, transparent); }
 .f-muted { fill: var(--muted); }
+/* Kakeya slivers and tubes: translucent, so overlaps show darker */
+.f-sliver { fill: color-mix(in srgb, var(--accent) 30%, transparent); }
+.f-ghost { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 4; }
 .f-bar { fill: color-mix(in srgb, var(--ink) 35%, transparent); }
 .f-bar2 { fill: var(--accent); }
 .f-c0, .f-c1, .f-c2, .f-c3 { fill: none; stroke-width: 1.6; stroke-linejoin: round; }

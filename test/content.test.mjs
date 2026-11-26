@@ -7,6 +7,8 @@ import { layout, renderMap } from '../site/js/map.js';
 import { topoOrder } from '../site/js/engine.js';
 import { inline, block } from '../site/js/format.js';
 import { siteFiles, render, currentBlock } from '../scripts/precache.mjs';
+import { perronTree } from '../site/js/content/theorems/besicovitch.js';
+import { kakeyaSet } from '../site/js/content/theorems/dvir.js';
 
 const checkQ = (q, where) => {
   assert.ok(q.prompt && q.explain, `${where}: prompt/explain`);
@@ -151,6 +153,49 @@ test('PWA: manifest icons and service-worker shell exist', () => {
 // a stale block means a file missing offline or an update never delivered.
 test('PWA: sw.js file list and version match site/ (run `npm run precache` if this fails)', () => {
   assert.equal(currentBlock().block.replace(/\r\n/g, '\n'), render(siteFiles()));
+});
+
+// Exact area of a union of triangles with base on y = 0 and apex at height 1:
+// at each height the triangles are intervals, so merge them row by row.
+const unionArea = (tris, rows = 4000) => {
+  let total = 0;
+  for (let i = 0; i < rows; i++) {
+    const y = (i + 0.5) / rows;
+    const iv = tris.map(([[x0], [x1], [xa]]) => [x0 + (xa - x0) * y, x1 + (xa - x1) * y]).sort((a, b) => a[0] - b[0]);
+    let [lo, hi] = iv[0];
+    for (const [a, b] of iv.slice(1)) {
+      if (a > hi) { total += hi - lo; [lo, hi] = [a, b]; } else hi = Math.max(hi, b);
+    }
+    total += hi - lo;
+  }
+  return total / rows;
+};
+
+test('Perron tree: the lemma area, the step-3 bound, and "about a quarter" in the caption', () => {
+  const W = 2 / Math.sqrt(3), T = W / 2;
+  for (const a of [0.5, 0.6, 0.8]) {
+    assert.ok(Math.abs(unionArea(perronTree(1, a, W)) / T - (a * a + 2 * (1 - a) ** 2)) < 1e-3, `lemma, α = ${a}`);
+  }
+  for (const [k, a] of [[4, 0.7], [8, 0.8], [10, 0.9]]) {
+    assert.ok(unionArea(perronTree(k, a, W)) / T <= a ** (2 * k) + 2 * (1 - a), `bound, k = ${k}`);
+  }
+  const quarter = unionArea(perronTree(8, 0.8, W)) / T;
+  assert.ok(quarter > 0.2 && quarter < 0.3, `k = 8 tree covers ${quarter}`);
+});
+
+test('the F_5 Kakeya set in the Dvir figure has a line in every direction and 17 points', () => {
+  for (const q of [3, 5, 7, 11]) {
+    const K = kakeyaSet(q), has = new Set(K.map(([x, y]) => `${x},${y}`));
+    assert.equal(K.length, (q * (q + 1)) / 2 + (q - 1) / 2, `q = ${q}: size`);
+    assert.ok(K.length >= (q * (q + 1)) / 2, `q = ${q}: Dvir's bound`);
+    const dirs = [[0, 1], ...Array.from({ length: q }, (_, m) => [1, m])];
+    for (const [bx, by] of dirs) {
+      const ok = Array.from({ length: q * q }, (_, i) => [i % q, Math.floor(i / q)])
+        .some(([ax, ay]) => Array.from({ length: q }, (_, t) => `${(ax + t * bx) % q},${(ay + t * by) % q}`).every((p) => has.has(p)));
+      assert.ok(ok, `q = ${q}: no line in direction (${bx}, ${by})`);
+    }
+  }
+  assert.equal(kakeyaSet(5).length, 17);
 });
 
 test('formatter: escapes HTML outside math, keeps lists', () => {

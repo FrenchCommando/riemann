@@ -11,22 +11,23 @@ Build up to a great theorem, one complete proof at a time. You pick a destinatio
 | The Riemann Hypothesis | Euclid → FTA → Euler's product → Chebyshev → von Mangoldt → RH |
 | Navier–Stokes | Pythagoras → heat equation (viscosity smooths) → energy identity and scaling → 2D vorticity bound → 3D vortex stretching → the blow-up question |
 | Galois theory | FTA → Fermat's Little Theorem → Lagrange → the field of bytes 𝔽₂₅₆ → primitive elements → Frobenius (QR format strip) → Reed–Solomon (QR codes) → no formula for the quintic |
+| The Kakeya conjecture | Pythagoras → Kakeya sets of tiny area (Perron trees) → Córdoba: planar Kakeya sets are 2-dimensional; FTA → 𝔽₂₅₆ → Dvir's finite-field Kakeya → Wang–Zahl in 3D |
 
 A path is the destination plus everything it builds on (`requiresTheorems`, transitively), in catalogue order. Proofs on no path (Cantor, halting, e) stay available under "All proofs".
 
-**24 proofs and 5 destination roadmaps**
-- *Geometry:* Pythagorean theorem (rearrangement, similar triangles, vectors)
+**27 proofs and 6 destination roadmaps**
+- *Geometry:* Pythagorean theorem (rearrangement, similar triangles, vectors) · Kakeya sets of tiny area (Perron trees, computed by `perronTree` in `besicovitch.js`)
 - *Number theory:* √2 irrational · infinitely many primes · Fundamental Theorem of Arithmetic · Fermat's Little Theorem · infinitely many primes ≡ 3 (mod 4) · Euler's ∑1/p diverges · Chebyshev's bound π(x) ≳ x/log x · all Pythagorean triples · Fermat for n = 4 (infinite descent) · −ζ′/ζ = ∑Λ(n)n⁻ˢ
 - *Sets & logic:* Cantor's diagonal (ℝ uncountable) · Cantor's theorem (|P(S)| > |S|) · halting problem
-- *Analysis:* e is irrational · the heat equation smooths · Navier–Stokes energy identity and scaling · 2D flows stay smooth (vorticity) · 3D vortex stretching and the Beale–Kato–Majda criterion
-- *Algebra:* Lagrange's theorem (→ Euler's theorem, a second proof of Fermat) · a field with 256 elements · every finite field has a primitive element · Frobenius and the QR format strip · Reed–Solomon codes (with a real, scannable QR code drawn by `content/qrcode.js`) · roadmap: Galois theory and the quintic
-- *Frontiers (roadmaps):* Fermat's Last Theorem · the Langlands program · the Riemann Hypothesis · Navier–Stokes existence and smoothness
+- *Analysis:* e is irrational · the heat equation smooths · Navier–Stokes energy identity and scaling · 2D flows stay smooth (vorticity) · 3D vortex stretching and the Beale–Kato–Majda criterion · Kakeya sets in the plane are 2-dimensional (Córdoba's L² argument)
+- *Algebra:* Lagrange's theorem (→ Euler's theorem, a second proof of Fermat) · a field with 256 elements · every finite field has a primitive element · Frobenius and the QR format strip · Reed–Solomon codes (with a real, scannable QR code drawn by `content/qrcode.js`) · Dvir's finite-field Kakeya bound (polynomial method) · roadmap: Galois theory and the quintic
+- *Frontiers (roadmaps):* Fermat's Last Theorem · the Langlands program · the Riemann Hypothesis · Navier–Stokes existence and smoothness · the Kakeya conjecture
 
-A **roadmap** (`kind: 'roadmap'`, with a `tagline` and `status` for its destination card) maps a proof too long to walk through: it works out what fits and marks the rest `cited`, with a source line, and lists `sources` at the end. The RH and Navier–Stokes roadmaps end with the status of the 2026 claims (as of 24 Nov 2026), taken from the linked reporting; update them as the story moves.
+A **roadmap** (`kind: 'roadmap'`, with a `tagline` and `status` for its destination card) maps a proof too long to walk through: it works out what fits and marks the rest `cited`, with a source line, and lists `sources` at the end. The RH, Navier–Stokes and Kakeya roadmaps end with the status of the 2026 claims (as of 24–25 Nov 2026), taken from the linked reporting; update them as the story moves.
 
 ## How it adapts
 
-1. **Concept graph** (`site/js/content/concepts.js`) — 34 concepts with prerequisites, each with a primer and a diagnostic question.
+1. **Concept graph** (`site/js/content/concepts.js`) — 37 concepts with prerequisites, each with a primer and a diagnostic question.
 2. **Diagnostic** — picks the question with the most expected inferences: a hit marks all prerequisites solid, a miss marks all dependents weak. It weights the two by the learner's running hit rate, so experts get asked deep concepts and novices shallow ones. With a destination chosen it only asks about the concepts on that path (inference still uses the whole graph). Capped at 12 questions; anything still unassessed starts at an estimate from the hit rate and calibrates as you go.
 3. **Mastery model** — each concept has p ∈ (0,1), updated by a decaying learning rate (floored at 0.2 so it keeps tracking) on every check question, "Got it" and "I'm lost".
 4. **Per-step mode** from the weakest concept the step uses:
