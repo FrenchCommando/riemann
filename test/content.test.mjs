@@ -7,6 +7,7 @@ import { layout, renderMap } from '../site/js/map.js';
 import { topoOrder } from '../site/js/engine.js';
 import { inline, block } from '../site/js/format.js';
 import { siteFiles, render, currentBlock } from '../scripts/precache.mjs';
+import { pages, plain, description } from '../scripts/pages.mjs';
 import { perronTree, treeArea } from '../site/js/content/theorems/besicovitch.js';
 import { kakeyaSet } from '../site/js/content/theorems/dvir.js';
 
@@ -133,7 +134,7 @@ test('all math renders in KaTeX (strict) and dollars are balanced', () => {
 // mime.types has no .mjs (it went out as application/octet-stream: blank page).
 // Only ship extensions every static server types correctly.
 test('site/ only contains files with standard served MIME types', () => {
-  const ok = new Set(['.html', '.css', '.js', '.woff2', '.svg', '.png', '.json']);
+  const ok = new Set(['.html', '.css', '.js', '.woff2', '.svg', '.png', '.json', '.xml', '.txt']);
   const files = readdirSync(new URL('../site/', import.meta.url), { recursive: true, withFileTypes: true })
     .filter((d) => d.isFile());
   for (const f of files) assert.ok(ok.has(extname(f.name)), `site file with unsafe extension: ${f.name}`);
@@ -153,6 +154,35 @@ test('PWA: manifest icons and service-worker shell exist', () => {
 // a stale block means a file missing offline or an update never delivered.
 test('PWA: sw.js file list and version match site/ (run `npm run precache` if this fails)', () => {
   assert.equal(currentBlock().block.replace(/\r\n/g, '\n'), render(siteFiles()));
+});
+
+// The plain pages are what crawlers and link previews see (scripts/pages.mjs).
+test('plain pages: site/p, sitemap and robots match the content (run `npm run pages` if this fails)', () => {
+  for (const [f, s] of Object.entries(pages())) {
+    const path = new URL(`../site/${f}`, import.meta.url);
+    assert.ok(existsSync(path), `${f} missing`);
+    assert.equal(readFileSync(path, 'utf8').replace(/\r\n/g, '\n'), s, `${f} is stale`);
+  }
+  const stray = readdirSync(new URL('../site/p/', import.meta.url)).filter((f) => !pages()[`p/${f}`]);
+  assert.deepEqual(stray, [], 'site/p has pages for proofs that no longer exist');
+});
+
+test('plain pages: titles and descriptions are plain text of a sensible length', () => {
+  for (const t of theorems) {
+    for (const s of [plain(t.title), description(t)]) assert.doesNotMatch(s, /[\\$*{}]/, `${t.id}: markup left in "${s}"`);
+    const d = description(t);
+    assert.ok(d.length >= 60 && d.length <= 300, `${t.id}: description is ${d.length} characters`);
+  }
+});
+
+// og:image: a missing or wrongly sized picture shows as a blank or cropped preview.
+test('preview cards: a 1200 × 630 PNG for the home page and every proof (run `npm run cards` if this fails)', () => {
+  for (const id of ['home', ...theorems.map((t) => t.id)]) {
+    const path = new URL(`../site/og/${id}.png`, import.meta.url);
+    assert.ok(existsSync(path), `og/${id}.png missing`);
+    const b = readFileSync(path);
+    assert.deepEqual([b.readUInt32BE(16), b.readUInt32BE(20)], [1200, 630], `og/${id}.png size`);
+  }
 });
 
 test('Perron tree: the lemma area, the step-3 bound, and the areas in the captions', () => {

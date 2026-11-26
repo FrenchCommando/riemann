@@ -257,6 +257,11 @@ details summary { font: 1rem var(--hand); color: var(--accent); cursor: pointer;
 .check { margin-top: 1.1rem; border-top: 2px dashed var(--rule); padding-top: .7rem; }
 .cite { font: .82rem var(--sans); color: var(--muted); margin: -.4rem 0 .6rem; }
 .sources ul { font-size: .9rem; padding-left: 1.2rem; }
+.share { margin-top: 2rem; border-top: 2px dashed var(--rule); padding-top: .6rem; }
+.share a { word-break: break-all; }
+/* the plain pages (scripts/pages.mjs): every step shown, nothing to click through */
+.static .row { margin: 1.2rem 0 1.6rem; }
+.static .row .hand { font-size: .95rem; }
 
 .question .prompt { margin-bottom: .6rem; }
 .opts { display: grid; gap: .5rem; }

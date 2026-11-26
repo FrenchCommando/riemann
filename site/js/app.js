@@ -295,7 +295,8 @@ function viewTheorem(id) {
     <div class="eyebrow">Proof · ${Math.min(cur, t.steps.length)}/${t.steps.length} steps</div>
     <ol class="steps">${steps}</ol>${end}
     ${t.sources ? `<section class="sources"><div class="eyebrow">Sources</div><ul>${t.sources.map((s) =>
-      `<li><a href="${s.url}" target="_blank" rel="noopener noreferrer">${fi(s.label)}</a></li>`).join('')}</ul></section>` : ''}</article>`;
+      `<li><a href="${s.url}" target="_blank" rel="noopener noreferrer">${fi(s.label)}</a></li>`).join('')}</ul></section>` : ''}
+    <p class="small muted share">To share this proof: <a href="/p/${id}">${location.host}/p/${id}</a>, a plain page of the whole proof that shows a preview picture where links unfurl.</p></article>`;
 }
 
 function viewConcepts() {

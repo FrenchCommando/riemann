@@ -58,12 +58,14 @@ docker-compose.yml    read-only nginx:alpine on 127.0.0.1:3020
 
 ```sh
 npm test          # Node ≥ 20, no dependencies
-npm run serve     # http://localhost:8080
+npm run serve     # http://localhost:8080 (/p/<id> needs the .html there; nginx adds it)
 ```
 
 ## Adding a theorem
 
 Copy a file in `site/js/content/theorems/`, register it in `content/index.js`. Each step: `title`, `claim`, `why` (standard), `detail` (guided), `concepts` it relies on, optional `check` {prompt, options, answer, explain}, optional `figure` {svgs, caption} (inline SVG built with `content/figures.js`; a theorem can have one under its statement too). Write wrong options that come from real misconceptions, since that's what makes the check useful. Inside math, use `\lt`/`\gt` instead of `<`/`>`. `npm test` fails on any KaTeX error, unbalanced `$`, or a dangling concept or answer index.
+
+After changing content, run `npm run pages`. It writes a plain page per proof (`site/p/<id>.html`, served at `/p/<id>`), an index at `/p/`, `sitemap.xml` and `robots.txt`. The app lives behind `#hash` routes, so these are what search engines index and what link previews show: each has its title, a description, an `og:image` and the whole proof with the math pre-rendered, plus a link into the app. A proof page in the app shows its `/p/` link for sharing. If a title, field, figure or destination changed, also run `npm run cards [id …]`, which photographs a 1200 × 630 preview card per proof (`site/og/<id>.png`, plus `home.png` with the map) with headless Chrome or Edge (`CHROME=` to point at one). The pictures are committed. `npm test` fails on stale pages or a missing card.
 
 After changing anything under `site/`, run `npm run precache`. It rewrites the file list and the content hash (`VERSION`) in `site/sw.js`, which is how installed copies of the app (it is a PWA, usable offline) learn there is an update. `npm test` fails if you forget.
 
