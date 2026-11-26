@@ -10,22 +10,23 @@ Build up to a great theorem, one complete proof at a time. You pick a destinatio
 | The Langlands program | the Fermat path, plus primes, Fermat's Little Theorem, Lagrange, primes ≡ 3 mod 4 |
 | The Riemann Hypothesis | Euclid → FTA → Euler's product → Chebyshev → von Mangoldt → RH |
 | Navier–Stokes | Pythagoras → heat equation (viscosity smooths) → energy identity and scaling → 2D vorticity bound → 3D vortex stretching → the blow-up question |
+| Galois theory | FTA → Fermat's Little Theorem → Lagrange → the field of bytes 𝔽₂₅₆ → primitive elements → Frobenius (QR format strip) → Reed–Solomon (QR codes) → no formula for the quintic |
 
 A path is the destination plus everything it builds on (`requiresTheorems`, transitively), in catalogue order. Proofs on no path (Cantor, halting, e) stay available under "All proofs".
 
-**20 proofs and 4 destination roadmaps**
+**24 proofs and 5 destination roadmaps**
 - *Geometry:* Pythagorean theorem (rearrangement, similar triangles, vectors)
 - *Number theory:* √2 irrational · infinitely many primes · Fundamental Theorem of Arithmetic · Fermat's Little Theorem · infinitely many primes ≡ 3 (mod 4) · Euler's ∑1/p diverges · Chebyshev's bound π(x) ≳ x/log x · all Pythagorean triples · Fermat for n = 4 (infinite descent) · −ζ′/ζ = ∑Λ(n)n⁻ˢ
 - *Sets & logic:* Cantor's diagonal (ℝ uncountable) · Cantor's theorem (|P(S)| > |S|) · halting problem
 - *Analysis:* e is irrational · the heat equation smooths · Navier–Stokes energy identity and scaling · 2D flows stay smooth (vorticity) · 3D vortex stretching and the Beale–Kato–Majda criterion
-- *Algebra:* Lagrange's theorem (→ Euler's theorem, a second proof of Fermat)
+- *Algebra:* Lagrange's theorem (→ Euler's theorem, a second proof of Fermat) · a field with 256 elements · every finite field has a primitive element · Frobenius and the QR format strip · Reed–Solomon codes (with a real, scannable QR code drawn by `content/qrcode.js`) · roadmap: Galois theory and the quintic
 - *Frontiers (roadmaps):* Fermat's Last Theorem · the Langlands program · the Riemann Hypothesis · Navier–Stokes existence and smoothness
 
 A **roadmap** (`kind: 'roadmap'`, with a `tagline` and `status` for its destination card) maps a proof too long to walk through: it works out what fits and marks the rest `cited`, with a source line, and lists `sources` at the end. The RH and Navier–Stokes roadmaps end with the status of the 2026 claims (as of 24 Nov 2026), taken from the linked reporting; update them as the story moves.
 
 ## How it adapts
 
-1. **Concept graph** (`site/js/content/concepts.js`) — 30 concepts with prerequisites, each with a primer and a diagnostic question.
+1. **Concept graph** (`site/js/content/concepts.js`) — 34 concepts with prerequisites, each with a primer and a diagnostic question.
 2. **Diagnostic** — picks the question with the most expected inferences: a hit marks all prerequisites solid, a miss marks all dependents weak. It weights the two by the learner's running hit rate, so experts get asked deep concepts and novices shallow ones. With a destination chosen it only asks about the concepts on that path (inference still uses the whole graph). Capped at 12 questions; anything still unassessed starts at an estimate from the hit rate and calibrates as you go.
 3. **Mastery model** — each concept has p ∈ (0,1), updated by a decaying learning rate (floored at 0.2 so it keeps tracking) on every check question, "Got it" and "I'm lost".
 4. **Per-step mode** from the weakest concept the step uses:
@@ -62,6 +63,8 @@ npm run serve     # http://localhost:8080
 ## Adding a theorem
 
 Copy a file in `site/js/content/theorems/`, register it in `content/index.js`. Each step: `title`, `claim`, `why` (standard), `detail` (guided), `concepts` it relies on, optional `check` {prompt, options, answer, explain}, optional `figure` {svgs, caption} (inline SVG built with `content/figures.js`; a theorem can have one under its statement too). Write wrong options that come from real misconceptions, since that's what makes the check useful. Inside math, use `\lt`/`\gt` instead of `<`/`>`. `npm test` fails on any KaTeX error, unbalanced `$`, or a dangling concept or answer index.
+
+After changing anything under `site/`, run `npm run precache`. It rewrites the file list and the content hash (`VERSION`) in `site/sw.js`, which is how installed copies of the app (it is a PWA, usable offline) learn there is an update. `npm test` fails if you forget.
 
 ## Deploy on the Raspberry Pi
 

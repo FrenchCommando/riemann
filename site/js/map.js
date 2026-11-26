@@ -86,6 +86,6 @@ export function renderMap(theorems, labels, state, goalId = null) {
   });
 
   return `<svg class="proof-map${goalId ? ' has-goal' : ''}" viewBox="0 0 ${width} ${height}" role="img"
-    aria-label="Map of all proofs: each one is drawn to the right of the proofs it builds on; the four flags are the destinations"
+    aria-label="Map of all proofs: each one is drawn to the right of the proofs it builds on; the flags are the destinations"
     xmlns="http://www.w3.org/2000/svg">${edges.join('')}${nodes.join('')}</svg>`;
 }

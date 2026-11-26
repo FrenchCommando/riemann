@@ -21,6 +21,7 @@
   --g-langlands: #7b4fd0;
   --g-rh: #e4572e;
   --g-navierstokes: #0f8f84;
+  --g-galois: #2f6fb3;
   --serif: "Iowan Old Style", "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
   --sans: system-ui, -apple-system, "Segoe UI", sans-serif;
   --hand: "Segoe Print", "Bradley Hand", "Chalkboard SE", "Comic Neue", "Comic Sans MS", cursive;
@@ -30,13 +31,14 @@
     --bg: #1b2320; --grid: rgba(255, 255, 255, .045); --paper: #222c28; --ink: #ece8dc; --muted: #a3a99d; --rule: #34413b;
     --accent: #ff8a65; --accent-ink: #1b1410;
     --ok: #8fd6a3; --ok-bg: #243a2c; --warn: #f0c36d; --warn-bg: #3a3220; --no: #f4a29a; --no-bg: #3d2522;
-    --g-flt: #f6c453; --g-langlands: #b794f4; --g-rh: #ff8a65; --g-navierstokes: #4fd1c5;
+    --g-flt: #f6c453; --g-langlands: #b794f4; --g-rh: #ff8a65; --g-navierstokes: #4fd1c5; --g-galois: #7fb3f0;
   }
 }
 [data-goal="flt"] { --accent: var(--g-flt); }
 [data-goal="langlands"] { --accent: var(--g-langlands); }
 [data-goal="rh"] { --accent: var(--g-rh); }
 [data-goal="navierstokes"] { --accent: var(--g-navierstokes); }
+[data-goal="galois"] { --accent: var(--g-galois); }
 
 * { box-sizing: border-box; }
 html { -webkit-text-size-adjust: 100%; }
@@ -320,6 +322,11 @@ details summary { font: 1rem var(--hand); color: var(--accent); cursor: pointer;
 .f-d1 { fill: var(--ok); }
 .f-d2 { fill: var(--warn); }
 .f-d3 { fill: var(--muted); }
+/* QR codes stay dark on white in both themes: inverted codes don't scan everywhere. */
+.f-qr { fill: #111; }
+.f-qrbg { fill: #fff; }
+.f-sticker { fill: var(--accent); }
+.f-sticker-ink { font: italic 7px var(--serif); fill: #fff; text-anchor: middle; dominant-baseline: central; }
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }

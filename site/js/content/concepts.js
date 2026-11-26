@@ -511,6 +511,72 @@ Each multiple of $p$ in $1..m$ contributes one factor, each multiple of $p^2$ on
       explain: r`$\lfloor 10/2 \rfloor + \lfloor 10/4 \rfloor + \lfloor 10/8 \rfloor = 5 + 2 + 1 = 8$. Check: $10! = 3628800 = 2^8 \cdot 14175$.`,
     },
   },
+  {
+    id: 'fields',
+    name: 'Fields',
+    prereqs: ['groups'],
+    summary: 'Number systems where you can add, subtract, multiply, and divide by anything nonzero.',
+    primer: r`A **field** is a set with $+$ and $\times$ obeying the usual rules (associative, commutative, distributive, with $0$ and $1$), where every element has a negative and every **nonzero** element has an inverse. Examples: $\mathbb Q$, $\mathbb R$, $\mathbb C$, and $\mathbb Z/p$ for $p$ prime, written $\mathbb F_p$. Non-examples: $\mathbb Z$ ($2$ has no inverse) and $\mathbb Z/6$ ($2 \cdot 3 = 0$, so $2$ can't have an inverse).
+
+A field has **no zero divisors**: if $ab = 0$ and $a \ne 0$, then $b = a^{-1}ab = 0$.
+
+In $\mathbb F_p$, adding $1$ to itself $p$ times gives $0$; one says the field has **characteristic** $p$. In $\mathbb F_2 = \{0, 1\}$, $1 + 1 = 0$, so subtraction is the same as addition.`,
+    q: {
+      prompt: r`Which of these is a field?`,
+      options: [r`$\mathbb Z/6$`, r`$\mathbb Z/7$`, r`$\mathbb Z$`],
+      answer: 1,
+      explain: r`$7$ is prime, so every nonzero residue has an inverse mod $7$ (Bézout). In $\mathbb Z/6$, $2 \cdot 3 = 0$; in $\mathbb Z$, $2$ has no inverse.`,
+    },
+  },
+  {
+    id: 'polynomials',
+    name: 'Polynomials over a field',
+    prereqs: ['fields', 'divisibility'],
+    summary: 'Division with remainder, the factor theorem, and why degree d means at most d roots.',
+    primer: r`Polynomials with coefficients in a field divide like integers: for $g \ne 0$ there are $q, r$ with $f = qg + r$ and $\deg r \lt \deg g$. (Long division works because the leading coefficient of $g$ can be inverted.)
+
+**Factor theorem:** $f(a) = 0$ exactly when $(x - a)$ divides $f$. Divide by $x - a$: the remainder is a constant, and it equals $f(a)$.
+
+**Root bound:** a nonzero polynomial of degree $d$ has at most $d$ roots. Each root $a$ splits off a factor $x - a$, and a product is zero only if a factor is (no zero divisors). Over $\mathbb Z/8$, which is not a field, $x^2 - 1$ has four roots: $1, 3, 5, 7$.`,
+    q: {
+      prompt: r`How many roots does $x^3 - x$ have in $\mathbb Z/5$?`,
+      options: [r`$3$`, r`$5$`, r`$1$`],
+      answer: 0,
+      explain: r`$x^3 - x = x(x - 1)(x + 1)$, so the roots are $0, 1, 4$. Degree $3$ allows at most $3$, and here all three occur.`,
+    },
+  },
+  {
+    id: 'permutations',
+    name: 'Permutations & cycles',
+    prereqs: ['groups', 'functions'],
+    summary: 'Shuffles of n symbols, cycle notation, and even permutations.',
+    primer: r`A **permutation** of $\{1, \dots, n\}$ is a bijection from the set to itself; they form the group $S_n$, with $n!$ elements. **Cycle notation:** $(1\ 2\ 3)$ sends $1 \to 2 \to 3 \to 1$ and fixes everything else. A 2-cycle $(a\ b)$ is a **transposition**. Products are composed right to left: in $(1\ 2)(1\ 3)$, apply $(1\ 3)$ first.
+
+Every permutation is a product of transpositions, and the parity of their number is fixed. The **even** ones form the subgroup $A_n$, with $n!/2$ elements. A 3-cycle is even: $(1\ 2\ 3) = (1\ 3)(1\ 2)$.`,
+    q: {
+      prompt: r`What is $(1\ 2\ 3)$ applied twice, i.e. $(1\ 2\ 3)^2$?`,
+      options: [r`$(1\ 3\ 2)$`, r`$(1\ 2\ 3)$`, r`the identity`],
+      answer: 0,
+      explain: r`Twice around: $1 \to 2 \to 3$, $2 \to 3 \to 1$, $3 \to 1 \to 2$. So $1 \to 3 \to 2 \to 1$: the cycle $(1\ 3\ 2)$. Three times gives the identity.`,
+    },
+  },
+  {
+    id: 'codes',
+    name: 'Error-correcting codes',
+    prereqs: ['functions'],
+    summary: 'Redundancy that lets a damaged message be repaired; Hamming distance.',
+    primer: r`A **code** is a set of allowed strings (**codewords**) of length $n$. The **Hamming distance** between two strings is the number of positions where they differ, and the code's **minimum distance** $d$ is the smallest distance between two different codewords.
+
+Decode a received string to the nearest codeword. If at most $t$ positions are wrong and $2t \lt d$, that is the codeword sent: two codewords within $t$ of the same string would be within $2t \lt d$ of each other. If the damaged positions are known (**erasures**), up to $d - 1$ of them can be filled in.
+
+Example: send every bit three times. The codewords $000$ and $111$ are at distance $3$, so one flipped bit is corrected by majority vote.`,
+    q: {
+      prompt: r`A code has minimum distance $5$. How many wrong symbols can nearest-codeword decoding always correct?`,
+      options: [r`$2$`, r`$4$`, r`$5$`],
+      answer: 0,
+      explain: r`$2t \lt 5$ gives $t \le 2$. With $3$ errors the received string could be closer to a different codeword ($3 + 2 = 5$).`,
+    },
+  },
 ];
 
 export const conceptById = Object.fromEntries(concepts.map((c) => [c.id, c]));

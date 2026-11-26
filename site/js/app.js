@@ -134,7 +134,7 @@ function viewHome() {
       <h1>${goal ? `Heading for <span class="goal-word">${labels[goal.id]}</span>` : 'Where to?'}</h1>
       <p class="hand">${goal
         ? 'Your route is lit up. Filled dots are proofs you have done; the pulsing one is next. Click another flag to change course.'
-        : 'Each dot is a proof, drawn to the right of the proofs it uses. The flags are four big theorems. Pick one and the map shows the way.'}</p>
+        : 'Each dot is a proof, drawn to the right of the proofs it uses. The flags are the big theorems. Pick one and the map shows the way.'}</p>
     </section>
     <div class="map-wrap">${renderMap(theorems, labels, state, goal?.id)}</div>
     ${summitButtons()}
