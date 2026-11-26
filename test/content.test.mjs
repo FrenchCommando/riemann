@@ -6,6 +6,7 @@ import { concepts, conceptById, theorems, theoremById, labels } from '../site/js
 import { layout, renderMap } from '../site/js/map.js';
 import { topoOrder } from '../site/js/engine.js';
 import { inline, block } from '../site/js/format.js';
+import { siteFiles, render, currentBlock } from '../scripts/precache.mjs';
 
 const checkQ = (q, where) => {
   assert.ok(q.prompt && q.explain, `${where}: prompt/explain`);
@@ -144,10 +145,12 @@ test('PWA: manifest icons and service-worker shell exist', () => {
     assert.ok(manifest.icons.some((i) => i.sizes === size && i.type === 'image/png'), `manifest: no ${size} PNG icon`);
   }
   for (const i of manifest.icons) assert.ok(existsSync(site(i.src)), `manifest icon missing: ${i.src}`);
-  const shell = readFileSync(site('sw.js'), 'utf8').match(/const SHELL = (\[.*?\]);/)[1];
-  for (const f of JSON.parse(shell.replace(/'/g, '"'))) {
-    if (f !== './') assert.ok(existsSync(site(f)), `sw.js precaches a missing file: ${f}`);
-  }
+});
+
+// sw.js saves FILES at install, and VERSION decides when installed apps update:
+// a stale block means a file missing offline or an update never delivered.
+test('PWA: sw.js file list and version match site/ (run `npm run precache` if this fails)', () => {
+  assert.equal(currentBlock().block.replace(/\r\n/g, '\n'), render(siteFiles()));
 });
 
 test('formatter: escapes HTML outside math, keeps lists', () => {
