@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <!-- Full-bleed so it also works as a maskable icon: the glyph stays inside the central 80% safe zone. -->
+  <defs>
+    <pattern id="grid" width="32" height="32" patternUnits="userSpaceOnUse">
+      <path d="M32 0H0V32" fill="none" stroke="#4664aa" stroke-opacity=".16" stroke-width="2"/>
+    </pattern>
+  </defs>
+  <rect width="512" height="512" fill="#fbf8f1"/>
+  <rect width="512" height="512" fill="url(#grid)"/>
+  <text x="256" y="262" text-anchor="middle" dominant-baseline="middle" transform="rotate(-8 256 256)"
+        font-family="Cambria, 'Times New Roman', serif" font-style="italic" font-size="300" fill="#e4572e" stroke="#e4572e" stroke-width="7" stroke-linejoin="round">ζ</text>
+</svg>

@@ -458,3 +458,6 @@ app.addEventListener('keydown', (ev) => {
 
 window.addEventListener('hashchange', () => { route(); window.scrollTo(0, 0); });
 route();
+
+// Offline support and Android/desktop install (see sw.js).
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
