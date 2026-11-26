@@ -29,8 +29,85 @@ const treeSvg = (k, a, label, outline) => {
     ...tris.map((t) => poly(pts(t), 'f-sliver')),
     path(`M${px(lo) - 6} ${py(0)}H${px(hi) + 6}`, 'f-axis'));
 };
-const tree8 = treeSvg(8, 0.8, 'A Perron tree: an equilateral triangle cut into 256 thin slivers from its apex, slid along the base so that they overlap. The result is a spiky, tree-like shape whose area is about a quarter of the triangle, and it still contains a unit segment in every direction the triangle did');
+// Area of a union of triangles with base on y = 0 and apex at height 1 (as
+// perronTree makes them), as a fraction of the triangle of base W: integrate
+// the length of the union of the horizontal cross-sections.
+export function treeArea(tris, W, slices = 400) {
+  let A = 0;
+  for (let j = 0; j < slices; j++) {
+    const y = (j + 0.5) / slices;
+    const iv = tris.map(([[a], [b], [c]]) => [a + (c - a) * y, b + (c - b) * y]).sort((p, q) => p[0] - q[0]);
+    let [lo, hi] = iv[0];
+    for (const [x0, x1] of iv.slice(1)) {
+      if (x0 > hi) { A += hi - lo; lo = x0; hi = x1; } else hi = Math.max(hi, x1);
+    }
+    A += hi - lo;
+  }
+  return A / slices / (W / 2);
+}
+
+const tree8 = treeSvg(8, 0.8,'A Perron tree: an equilateral triangle cut into 256 thin slivers from its apex, slid along the base so that they overlap. The result is a spiky, tree-like shape whose area is about a quarter of the triangle, and it still contains a unit segment in every direction the triangle did');
 const tree4 = treeSvg(4, 0.7, 'The same construction with 16 slivers, drawn over the outline of the original triangle: the slivers bunch up into a shape with four levels of branches', true);
+
+// Step 4: same number of rounds, two choices of α, areas computed from the trees.
+const K7 = 7, A_LO = 0.6, A_HI = 0.85;
+const pctOf = (a) => Math.round(100 * treeArea(perronTree(K7, a, W), W));
+const [areaLo, areaHi] = [pctOf(A_LO), pctOf(A_HI)];
+const treeLo = treeSvg(K7, A_LO, `A Perron tree with 128 slivers and alpha = ${A_LO}, over the outline of the triangle: wide, with big ears; area ${areaLo}% of the triangle`, true);
+const treeHi = treeSvg(K7, A_HI, `A Perron tree with 128 slivers and alpha = ${A_HI}, over the outline of the triangle: thin and spiky; area ${areaHi}% of the triangle`, true);
+
+// ---------- step 1: what a triangle holds ----------
+const U1 = 200, px1 = (x) => 10 + U1 * x, py1 = (y) => 10 + U1 * (1 - y);
+const apex = [px1(W / 2), py1(1)];
+const unitFrom = (deg, len = 1) => {
+  const a = (deg * Math.PI) / 180;
+  return [apex[0] + U1 * len * Math.sin(a), apex[1] + U1 * len * Math.cos(a)];
+};
+const arcAt = (r, d0, d1) => {
+  const [x0, y0] = unitFrom(d0, r), [x1, y1] = unitFrom(d1, r);
+  return `M${x0.toFixed(1)} ${y0.toFixed(1)}A${U1 * r} ${U1 * r} 0 0 0 ${x1.toFixed(1)} ${y1.toFixed(1)}`;
+};
+const fan = svg(`0 0 ${(U1 * W + 20).toFixed(0)} ${U1 + 26}`, 'An equilateral triangle of height 1 with seven segments of length 1 fanning out from its apex, at angles from minus 30 to plus 30 degrees from the vertical. All of them fit inside the triangle; the 60 degree apex angle is marked',
+  poly(`${px1(0)},${py1(0)} ${px1(W)},${py1(0)} ${apex.join(',')}`, 'f-tri'),
+  ...[-30, -20, -10, 0, 10, 20, 30].map((d) => {
+    const [x, y] = unitFrom(d);
+    return path(`M${apex[0].toFixed(1)} ${apex[1]}L${x.toFixed(1)} ${y.toFixed(1)}`, d ? 'f-line' : 'f-vec f-sum');
+  }),
+  path(arcAt(0.22, 30, -30), 'f-arc'),
+  text(apex[0] - 44, apex[1] + 30, '60°', 'f-sm f-acc'),
+  text(apex[0] + 9, py1(0.42), '1', 'f-sm f-start'));
+
+// Three copies turned by 60°, apex together: a half-hexagon, 180° of directions.
+const R3 = 120, O3 = [150, 22];
+const at = (deg, r = R3) => [O3[0] + r * Math.cos((deg * Math.PI) / 180), O3[1] + r * Math.sin((deg * Math.PI) / 180)];
+const triAt = (d, cls) => poly([O3, at(d - 30), at(d + 30)].map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' '), cls);
+const three = svg('0 0 300 150', 'Three equilateral triangles sharing their apex, turned 60 degrees from each other, forming half a hexagon. Together their apex angles fill a half-turn, 180 degrees',
+  triAt(150, 'f-sq2'), triAt(90, 'f-tri'), triAt(30, 'f-sq'),
+  path(`M${at(180, 40).map((v) => v.toFixed(1)).join(' ')}A40 40 0 0 0 ${at(0, 40).map((v) => v.toFixed(1)).join(' ')}`, 'f-arc'),
+  text(O3[0], O3[1] + 56, '180°', 'f-sm f-acc'));
+
+// ---------- step 5: Pál's join ----------
+// Needle of length NL on ℓ1 (y = Y1) slides right to P, turns by φ about P onto
+// the line m, slides along m to Q on ℓ2 (y = Y2), and turns back onto ℓ2.
+const NL = 80, Y1 = 180, Y2 = 100, PHI = (15 * Math.PI) / 180, PX = 400;
+const [cp, sp] = [Math.cos(PHI), Math.sin(PHI)];
+const QX = PX - ((Y1 - Y2) / sp) * cp;
+const onM = (t, off = 0) => [PX - t * cp + off * sp, Y1 - t * sp - off * cp]; // off > 0: above m
+const f1 = (v) => v.toFixed(1);
+const sector = (x, y, cls) => // pivot (x, y); needle along (-1, 0) and along (-cos φ, -sin φ)
+  path(`M${f1(x)} ${f1(y)}L${f1(x - NL)} ${f1(y)}A${NL} ${NL} 0 0 1 ${f1(x - NL * cp)} ${f1(y - NL * sp)}Z`, cls);
+const seg = ([x0, y0], [x1, y1], cls) => path(`M${f1(x0)} ${f1(y0)}L${f1(x1)} ${f1(y1)}`, cls);
+const join = svg(`0 ${Y2 - 40} 444 ${Y1 - Y2 + 75}`, 'Two parallel lines. A needle on the lower line slides to the right, turns by a small angle onto a slanted line, slides back along it to the upper line, and turns back onto the upper line. The only area it sweeps is the two thin triangles where it turns',
+  seg([0, Y1], [420, Y1], 'f-axis'), seg([0, Y2], [420, Y2], 'f-axis'),
+  seg(onM(-20), onM(370), 'f-ghost'),
+  sector(PX, Y1, 'f-sq'), sector(QX, Y2, 'f-sq2'),
+  seg([20, Y1], [20 + NL, Y1], 'f-needle'),
+  arrowLine(110, Y1 + 14, PX - NL / 2, Y1 + 14, 'f-thin', 6),
+  arrowLine(...onM(100, 12), ...onM(220, 12), 'f-thin', 6),
+  seg([QX - NL, Y2], [QX, Y2], 'f-needle f-acc'),
+  text(424, Y1, 'ℓ₁', 'f-sm f-start'), text(424, Y2, 'ℓ₂', 'f-sm f-start'),
+  text(230, Y1 + 28, 'slide', 'f-pt'), text(PX - 20, Y1 - 32, 'turn', 'f-pt'),
+  text(QX - 40, Y2 - 26, 'turn back', 'f-pt'), text(...onM(170, -18), 'slide back', 'f-pt'));
 
 // ---------- the cut-and-slide lemma, α = 0.6 ----------
 // Halves T1 = (0,0),(1,0),(1,1) and T2 = (1,0),(2,0),(1,1); T2 slides left by
@@ -64,6 +141,10 @@ export default {
     {
       title: 'Triangles hold directions',
       claim: r`An equilateral triangle $T$ of height $1$ contains a unit segment in every direction within $30^\circ$ of its axis. Three such triangles, turned by $60^\circ$ from each other, cover all directions.`,
+      figure: {
+        svgs: [fan, three],
+        caption: r`Left: unit segments from the apex reach at most the base, so every direction in the $60^\circ$ apex angle fits. Right: three copies turned by $60^\circ$ fill a half-turn, and a segment turned by $180^\circ$ is the same segment.`,
+      },
       why: r`From the apex, the segment to a point of the base has length between $1$ (straight down) and $2/\sqrt3$ (to a corner), and its direction sweeps the $60^\circ$ apex angle. Three sweeps of $60^\circ$ make $180^\circ$, which is every direction of a line.`,
       detail: r`A segment has a direction "up to sign": turning it by $180^\circ$ gives the same segment. So covering $180^\circ$ of directions is enough.
 
@@ -128,6 +209,10 @@ In the end each sliver has only been translated. Sliver number $i$ moves left by
     {
       title: 'Choose α, then k',
       claim: r`Given $\varepsilon$, take $\alpha = 1 - \varepsilon/4$ and then $k$ so large that $\alpha^{2k} \lt \varepsilon/2$. The tree has area less than $\varepsilon|T|$, and the three trees together less than $3\varepsilon|T|$. $\blacksquare$`,
+      figure: {
+        svgs: [treeLo, treeHi],
+        caption: `Both trees after ${K7} rounds (${2 ** K7} slivers), areas measured from the drawings. $\\alpha = ${A_LO}$ (left): the heart is gone but the ears are wide, ${areaLo}% of the triangle. $\\alpha = ${A_HI}$ (right): thinner ears, ${areaHi}%. More rounds would not help the left one.`,
+      },
       why: r`$2(1 - \alpha) = \varepsilon/2$ bounds the ears, and $\alpha^{2k} \to 0$ because $\alpha \lt 1$. Each tree contains a translate of every sliver of its triangle, so by step 1 the three trees hold a unit segment in every direction.`,
       detail: r`The order matters. The ears cost about $2(1 - \alpha)$, which wants $\alpha$ close to $1$; the heart costs $\alpha^{2k}$, which wants $\alpha$ small. Taking $\alpha$ close to $1$ first and then making $k$ huge satisfies both: $\alpha^{2k}$ still tends to $0$, just slowly. With $\varepsilon = 0.1$: $\alpha = 0.975$, and $\alpha^{2k} \lt 0.05$ first holds at $k = 60$, so about $2^{60}$ slivers.
 
@@ -148,6 +233,10 @@ The pieces get very thin and the trees very spiky, but nothing in the argument n
       title: 'Area zero, and turning the needle',
       claim: r`There are Kakeya sets of area exactly zero, and a unit needle can be turned all the way around inside a set of area less than any $\varepsilon \gt 0$.`,
       cited: r`Besicovitch, 1919 and Math. Z. 27 (1928); Pál, 1921; Falconer, The Geometry of Fractal Sets, 1985, ch. 7`,
+      figure: {
+        svgs: [join],
+        caption: r`Pál's join, from $\ell_1$ to the parallel line $\ell_2$. Sliding along a line sweeps no area; only the two turns do, thin triangles of area about $\tfrac12\varphi$ for a turn by $\varphi$. Sliding further out makes $\varphi$, and so the area, as small as you like.`,
+      },
       why: r`Area zero: Besicovitch used a limiting version of the construction, each stage inside a small neighbourhood of the previous one, with a compactness argument keeping a unit segment in every direction in the limit. Turning: a needle can move between two parallel positions using extra area as small as you like (Pál's joins), so the needle turns a little inside one sliver, jumps to the next sliver, and so on.`,
       detail: r`**Pál's join.** To get from a line $\ell_1$ to a parallel line $\ell_2$: slide far along $\ell_1$, rotate slightly onto a line crossing $\ell_2$ far away, slide back along that line, and rotate onto $\ell_2$. The two rotations sweep thin triangles whose area shrinks the further you travel. So Kakeya's question has no answer: no positive area is the smallest.
 

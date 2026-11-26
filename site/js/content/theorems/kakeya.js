@@ -1,4 +1,4 @@
-import { svg, poly, text } from '../figures.js';
+import { svg, poly, path, text } from '../figures.js';
 
 const r = String.raw;
 
@@ -13,6 +13,39 @@ const brush = svg('0 0 360 210', 'A hairbrush: one long horizontal tube, the ste
   ...bristles.map(([x, th]) => poly(tube(x, 0, th, 150, 9), 'f-sliver')),
   poly(tube(0, 0, 0, 290, 12), 'f-sq'),
   text(312, 105, 'stem', 'f-pt f-start'));
+
+// Tubes through one point in space, drawn in an orthographic view. Bush: the
+// directions spread over a hemisphere (a Fibonacci spiral). Plany: the
+// directions all within a few degrees of one tilted plane.
+const view = ([x, y, z]) => {
+  const [a, b] = [0.6, 0.35]; // turn about the vertical axis, then tilt toward the viewer
+  const x1 = x * Math.cos(a) + z * Math.sin(a), z1 = -x * Math.sin(a) + z * Math.cos(a);
+  return [x1, y * Math.cos(b) - z1 * Math.sin(b)];
+};
+const through = (dirs, extra) => svg('0 0 240 220', extra.label,
+  extra.plane ?? '',
+  ...dirs.map((d) => {
+    const [x, y] = view(d), L = extra.len ?? 95;
+    return path(`M${(120 - L * x).toFixed(1)} ${(110 + L * y).toFixed(1)}L${(120 + L * x).toFixed(1)} ${(110 - L * y).toFixed(1)}`, 'f-tube');
+  }),
+  `<circle cx="120" cy="110" r="4" class="f-d0"/>`);
+const GOLD = Math.PI * (3 - Math.sqrt(5));
+const bushDirs = Array.from({ length: 16 }, (_, i) => {
+  const y = 1 - (i + 0.5) / 16, r = Math.sqrt(1 - y * y);
+  return [r * Math.cos(GOLD * i), y, r * Math.sin(GOLD * i)];
+});
+const bush3 = through(bushDirs, { label: 'A bush: sixteen tubes through one point, in directions spread out over all of space, like the spines of a sea urchin' });
+// A plane through the point, tilted by TILT from horizontal, spanned by e1, e2 with normal nrm.
+const TILT = 0.12;
+const e1 = [1, 0, 0], e2 = [0, Math.sin(TILT), -Math.cos(TILT)], nrm = [0, Math.cos(TILT), Math.sin(TILT)];
+const inPlane = (t, lift) => e1.map((_, k) => Math.cos(t) * e1[k] + Math.sin(t) * e2[k] + lift * nrm[k]);
+const planyDirs = Array.from({ length: 12 }, (_, i) => inPlane((Math.PI * i) / 12, 0.05 * Math.sin(3 * i)));
+const corner = (s, t) => view(e1.map((_, k) => s * e1[k] + t * e2[k])).map((v, k) => (k ? 110 - 82 * v : 120 + 82 * v).toFixed(1)).join(',');
+const plany3 = through(planyDirs, {
+  label: 'A plany configuration: twelve tubes through one point, all lying close to one nearly horizontal plane, drawn as a dashed parallelogram seen at a slant',
+  plane: poly([corner(-1, -1), corner(1, -1), corner(1, 1), corner(-1, 1)].join(' '), 'f-ghost'),
+  len: 80,
+});
 
 export default {
   id: 'kakeya',
@@ -75,6 +108,10 @@ So Kakeya is the "geometric core" of these conjectures: necessary for each of th
       title: 'Bushes and hairbrushes',
       claim: r`In $\mathbb R^3$ the dimension is at least $2$ (Córdoba's argument, or the bush), $7/3$ (Bourgain, 1991), $5/2$ (Wolff's hairbrush, 1995), and slightly more than $5/2$: Minkowski (Katz, Łaba and Tao, 2000) and Hausdorff (Katz and Zahl, 2019).`,
       cited: r`Bourgain, GAFA 1991; Wolff, Rev. Mat. Iberoam. 11 (1995); Katz–Łaba–Tao, Ann. of Math. 152 (2000); Katz–Zahl, J. Amer. Math. Soc. 32 (2019)`,
+      figure: {
+        svgs: [bush3],
+        caption: r`A bush: tubes through one point in directions spread over all of space. Near the point they pile up; a little way out they are disjoint, and the union is at least what they cover there.`,
+      },
       why: r`A **bush** is many tubes through one point: away from it they separate, so a point of high multiplicity forces a large union, which gives $(n + 1)/2$ in $\mathbb R^n$. A **hairbrush** is many tubes crossing one tube, the stem: around the stem they spread over different planes, and each plane is a 2D Kakeya problem, where Córdoba's argument applies. Wolff's count gives $(n + 2)/2$ in $\mathbb R^n$.`,
       detail: r`Every argument has the same shape as Córdoba's: count incidences between tubes, use that tubes in different directions meet in small sets, and turn little overlap into a large union. What changes is which configuration is counted: pairs (Córdoba), tubes through a point (bush), tubes through a tube (hairbrush).
 
@@ -95,6 +132,10 @@ Wolff's $5/2$ resisted for two decades. Katz, Łaba and Tao pushed the Minkowski
       title: 'Where the hard cases hide',
       claim: r`A Kakeya set in $\mathbb R^3$ of dimension near $5/2$ would have to be **plany** (the tubes through a typical point lie close to one plane) and **grainy** (at small scales it is made of flat slabs, grains).`,
       cited: r`Katz–Łaba–Tao, 2000; Guth, the polynomial method, 2010s; Tao's account of Wang–Zahl, 2025`,
+      figure: {
+        svgs: [bush3, plany3],
+        caption: r`The same point, two ways. Left, a bush: the tubes spread in every direction of space. Right, plany: they all lie close to one plane (dashed), so near this point the set looks like a planar Kakeya set, and the counting arguments lose the third dimension.`,
+      },
       why: r`These are the configurations every known argument fails to rule out: tubes lying in planes look like a lower-dimensional problem repeated, and the counting in bushes and hairbrushes cannot see that they are spread out. Guth later explained graininess with the polynomial method, the descendant of Dvir's finite-field proof.`,
       detail: r`This is where Dvir's idea came back to the real problem. Over $\mathbb F_q$ a small Kakeya set lies in the zero set of a low-degree polynomial. Over $\mathbb R$ that is false, but a weakened version holds: the hard configurations concentrate near low-degree surfaces, and polynomial partitioning (Guth, Katz) cuts space into cells where the problem splits.
 

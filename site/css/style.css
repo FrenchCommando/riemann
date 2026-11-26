@@ -317,6 +317,9 @@ details summary { font: 1rem var(--hand); color: var(--accent); cursor: pointer;
 .f-muted { fill: var(--muted); }
 /* Kakeya slivers and tubes: translucent, so overlaps show darker */
 .f-sliver { fill: color-mix(in srgb, var(--accent) 30%, transparent); }
+.f-needle { fill: none; stroke: var(--ink); stroke-width: 4; stroke-linecap: round; }
+.f-needle.f-acc { stroke: var(--accent); }
+.f-tube { fill: none; stroke: color-mix(in srgb, var(--accent) 40%, transparent); stroke-width: 7; stroke-linecap: round; }
 .f-ghost { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 4 4; }
 .f-bar { fill: color-mix(in srgb, var(--ink) 35%, transparent); }
 .f-bar2 { fill: var(--accent); }

@@ -27,6 +27,17 @@ const cross = svg('0 0 320 170', 'Two thin rectangles of width delta crossing at
   text(10, 85, 'δ', 'f-sm'), path(`M22 ${85 - d / 2}V${85 + d / 2}`, 'f-mark'),
   text(90, 30, 'overlap = δ² / sin θ', 'f-pt'), path('M118 40L152 78', 'f-mark'));
 
+// Step 3: one horizontal tube crossed by tubes at angles πk/12, k = 1..6. The
+// overlaps (shaded) are the parallelograms of step 2, of length δ / sin θ.
+const dd = 18, NK = 12, Y0 = 80;
+const paraAt = (a) => [[-dd / 2, -dd / 2], [dd / 2, -dd / 2], [dd / 2, dd / 2], [-dd / 2, dd / 2]]
+  .map(([u, y]) => [(y * Math.cos(a) - u) / Math.sin(a), y]);
+const crossings = [[1, 80], [2, 176], [3, 242], [4, 300], [5, 354], [6, 406]];
+const fanOverlaps = svg('0 0 440 172', 'A long horizontal tube crossed by six tubes at angles of 15, 30, 45, 60, 75 and 90 degrees. The overlap of each with the horizontal tube is shaded: long for 15 degrees, shrinking to a small square at 90 degrees',
+  ...crossings.map(([k, x]) => poly(pts(tube(0, 0, (Math.PI * k) / NK, 140, dd), x, Y0), 'f-tri')),
+  poly(pts(tube(0, 0, 0, 424, dd), 220, Y0), 'f-tri'),
+  ...crossings.map(([k, x]) => poly(pts(paraAt((Math.PI * k) / NK), x, Y0), 'f-d0') + text(x, Y0 + 82, `${15 * k}°`, 'f-pt')));
+
 export default {
   id: 'cordoba',
   field: 'Analysis',
@@ -80,6 +91,10 @@ So nearly parallel tubes ($\theta \approx \delta$) can overlap almost entirely: 
     {
       title: 'Adding up all overlaps',
       claim: r`$\displaystyle \sum_{i, j} |T_i \cap T_j| \le N\delta\,(2 + \log N).$`,
+      figure: {
+        svgs: [fanOverlaps],
+        caption: r`The overlaps with one tube, for $N = 12$ directions. The tube $k$ steps away meets it at angle $\pi k/N$ in a piece of length $\delta/\sin(\pi k/N) \approx \delta N/(\pi k)$: the $1/k$ that sums to $\log N$.`,
+      },
       why: r`The $N$ terms with $i = j$ give $N\delta$. For $i \ne j$ the angle is $\pi k/N$ with $1 \le k \le N/2$, so $\sin \ge 2k/N$ and the overlap is at most $\delta^2 N/(2k)$. Each $k$ occurs for at most two $j$, so for fixed $i$ the sum over $j$ is at most $\delta^2 N \sum_{k \le N/2} \frac1k \le \delta^2 N (1 + \log N)$.`,
       detail: r`The angle between the lines in directions $\theta_i$ and $\theta_j$ is $\pi k/N$ with $k = \min(|i - j|, N - |i - j|)$: lines that differ by almost $180^\circ$ are close. That angle is at most $90^\circ$, where $\sin x \ge 2x/\pi$ (the sine curve lies above its chord), so $\sin(\pi k/N) \ge 2k/N$.
 
